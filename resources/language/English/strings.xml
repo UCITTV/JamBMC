@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+    <!-- Root menu -->
+
+    <!-- Context menu -->
+    <string id="30100">Add-on Settings</string>
+
+    <!-- Dialogs -->
+
+    <!-- Error dialogs -->
+    <string id="30120">Connection error</string>
+    <string id="30121">Wrong User-Credentials</string>
+    <string id="30122">Do you want to change them now?</string>
+    <!-- Noticications -->
+
+    <!-- Help Dialog -->
+
+    <!-- Settings -->
+    <string id="30300">Username</string>
+    <string id="30301">Password</string>
+    <string id="30302">Default List</string>
+    <string id="30303">Use HTTPS</string>
+    <string id="30310">Default Privacy for new Lists</string>
+    <string id="30311">Private</string>
+    <string id="30312">Friends</string>
+    <string id="30313">Public</string>
+</strings>
