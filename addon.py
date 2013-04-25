@@ -248,9 +248,10 @@ def show_radios():
         'context_menu': context_menu(),
         'replace_context_menu': True,
         'thumbnail': radio['image'],
+        'is_playable': True,
         'path': plugin.url_for(
-            endpoint='play_song',  # FIXME
-            track_id=radio['id'],
+            endpoint='play_radio',
+            radio_id=radio['id'],
         )
     } for i, radio in enumerate(radios)]
 
@@ -337,6 +338,12 @@ def show_tracks(album_id):
 @plugin.route('/play/track/<track_id>')
 def play_song(track_id):
     stream_url = api.get_track_url(track_id)
+    return plugin.set_resolved_url(stream_url)
+
+
+@plugin.route('/play/radio/<radio_id>')
+def play_radio(radio_id):
+    stream_url = api.get_radio_url(radio_id)
     return plugin.set_resolved_url(stream_url)
 
 

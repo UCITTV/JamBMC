@@ -106,6 +106,15 @@ class JamendoApi():
         self.log('get_track_url target_url: %s' % target_url)
         return target_url
 
+    def get_radio_url(self, radio_id):
+        path = 'radios/stream'
+        params = {
+            'id': radio_id
+        }
+        radios = self._api_call(path, params).get('results', [])
+        radio = radios[0] if radios else {}
+        return radio.get('stream')
+
     def _api_redirect(self, path, params={}):
         headers = {
             'user-agent': USER_AGENT
