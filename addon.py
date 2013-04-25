@@ -71,6 +71,8 @@ def show_root():
          'path': plugin.url_for(endpoint='show_albums')},
         {'label': _('show_artists'),
          'path': plugin.url_for(endpoint='show_artists')},
+        {'label': _('show_radios'),
+         'path': plugin.url_for(endpoint='show_radios')},
     ]
     return plugin.finish(items)
 
@@ -189,6 +191,68 @@ def show_artists():
             artist_id=artist['id'],
         )
     } for i, artist in enumerate(artists)]
+
+    if has_next_page:
+        items.append({
+            'label': '>> %s >>' % _('next'),
+            'path': plugin.url_for(
+                endpoint=plugin.request.view,
+                is_update='true',
+                **dict(plugin.request.view_params, page=int(page) + 1)
+            )
+        })
+
+    if has_previous_page:
+        items.insert(0, {
+            'label': '<< %s <<' % _('previous'),
+            'path': plugin.url_for(
+                endpoint=plugin.request.view,
+                is_update='true',
+                **dict(plugin.request.view_params, page=int(page) - 1)
+            )
+        })
+
+    finish_kwargs = {
+        'update_listing': is_update
+    }
+    if plugin.get_setting('force_viewmode', bool):
+        finish_kwargs['view_mode'] = 'thumbnail'
+    return plugin.finish(items, **finish_kwargs)
+
+
+@plugin.route('/radios/')
+def show_radios():
+    def context_menu():
+        return [
+            (
+                _('addon_settings'),
+                _run(
+                    endpoint='open_settings'
+                )
+            ),
+        ]
+
+    plugin.set_content('music')
+
+    page = int(plugin.request.args.get('page', ['1'])[0])
+    radios = api.get_radios(page=page)
+    has_next_page = len(radios) == api.current_limit
+    has_previous_page = page > 1
+    is_update = 'is_update' in plugin.request.args
+
+    items = [{
+        'label': radio['dispname'],
+        'info': {
+            'count': i,
+        },
+        'context_menu': context_menu(),
+        'replace_context_menu': True,
+        'thumbnail': radio['image'],
+        'path': plugin.url_for(
+            endpoint='play_song',  # FIXME
+            track_id=radio['id'],
+        )
+    } for i, radio in enumerate(radios)]
 
     if has_next_page:
         items.append({

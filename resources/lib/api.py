@@ -77,6 +77,17 @@ class JamendoApi():
         artists = self._api_call(path, params).get('results', [])
         return artists
 
+    def get_radios(self, page=1):
+        path = 'radios'
+        params = {
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+            'imagesize': 150,
+            'type': 'www'
+        }
+        radios = self._api_call(path, params).get('results', [])
+        return radios
+
     def get_album_tracks(self, album_id):
         path = 'albums/tracks'
         params = {'id': [album_id]}
@@ -91,11 +102,11 @@ class JamendoApi():
             'audioformat': self._audioformat,
             'id': track_id
         }
-        target_url = self._api_head(path, params)
-        log('get_track_url target_url: %s' % target_url)
+        target_url = self._api_redirect(path, params)
+        self.log('get_track_url target_url: %s' % target_url)
         return target_url
 
-    def _api_head(self, path, params={}):
+    def _api_redirect(self, path, params={}):
         headers = {
             'user-agent': USER_AGENT
         }
