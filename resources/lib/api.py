@@ -96,6 +96,18 @@ class JamendoApi():
         tracks = album.get('tracks', [])
         return album, tracks
 
+    def get_similar_tracks(self, track_id, page=1):
+        path = 'tracks/similar'
+        params = {
+            'id': track_id,
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+            'audioformat': self._audioformat,
+            'imagesize': 400,
+        }
+        tracks = self._api_call(path, params).get('results', [])
+        return tracks
+
     def get_track_url(self, track_id):
         path = 'tracks/file'
         params = {

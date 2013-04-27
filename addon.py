@@ -299,6 +299,13 @@ def show_tracks(album_id):
                 )
             ),
             (
+                _('show_similar_tracks'),
+                _view(
+                    endpoint='show_similar_tracks',
+                    track_id=track_id,
+                )
+            ),
+            (
                 _('addon_settings'),
                 _run(
                     endpoint='open_settings'
@@ -332,7 +339,97 @@ def show_tracks(album_id):
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
-    return items
+
+    return plugin.finish(items)
+
+
+@plugin.route('/tracks/similar/<track_id>/')
+def show_similar_tracks(track_id):
+    def context_menu(artist_id, track_id):
+        return [
+            (
+                _('song_info'),
+                'XBMC.Action(Info)'
+            ),
+            (
+                _('all_albums_by_this_artist'),
+                _view(
+                    endpoint='show_albums_by_artist',
+                    artist_id=artist_id,
+                )
+            ),
+            (
+                _('show_similar_tracks'),
+                _view(
+                    endpoint='show_similar_tracks',
+                    track_id=track_id,
+                )
+            ),
+            (
+                _('addon_settings'),
+                _run(
+                    endpoint='open_settings'
+                )
+            ),
+        ]
+
+    plugin.set_content('songs')
+
+    page = int(plugin.request.args.get('page', ['1'])[0])
+    tracks = api.get_similar_tracks(track_id=track_id, page=page)
+    has_next_page = len(tracks) == api.current_limit
+    has_previous_page = page > 1
+    is_update = 'is_update' in plugin.request.args
+
+    items = [{
+        'label': '%s - %s (%s)' % (track['artist_name'], track['name'], track['album_name']),
+        'info': {
+            'count': i,
+            'tracknumber': i + 1,
+            'duration': track['duration'],
+            'artist': track['artist_name'],
+            'track': track['name'],
+            'year': int(track.get('releasedate', '0.0.0').split('-')[0]),
+        },
+        'context_menu': context_menu(
+            artist_id=track['artist_id'],
+            track_id=track['id']
+        ),
+        'replace_context_menu': True,
+        'is_playable': True,
+        'thumbnail': track['album_image'],
+        'path': plugin.url_for(
+            endpoint='play_song',
+            track_id=track['id']
+        )
+    } for i, track in enumerate(tracks)]
+
+    if has_next_page:
+        items.append({
+            'label': '>> %s >>' % _('next'),
+            'path': plugin.url_for(
+                endpoint=plugin.request.view,
+                is_update='true',
+                **dict(plugin.request.view_params, page=int(page) + 1)
+            )
+        })
+
+    if has_previous_page:
+        items.insert(0, {
+            'label': '<< %s <<' % _('previous'),
+            'path': plugin.url_for(
+                endpoint=plugin.request.view,
+                is_update='true',
+                **dict(plugin.request.view_params, page=int(page) - 1)
+            )
+        })
+
+    finish_kwargs = {
+        'update_listing': is_update
+    }
+    if plugin.get_setting('force_viewmode', bool):
+        finish_kwargs['view_mode'] = 'thumbnail'
+    return plugin.finish(items, **finish_kwargs)
 
 
 @plugin.route('/play/track/<track_id>')
