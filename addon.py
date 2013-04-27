@@ -20,6 +20,12 @@
 from xbmcswift2 import Plugin, xbmc, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi
 
+# TODO
+# Add Fanart
+# Add Tag search
+# Add search
+# Add login/favorites
+# Translation
 
 STRINGS = {
     # Root menu entries
@@ -80,28 +86,6 @@ def show_root():
 @plugin.route('/albums/<artist_id>/', name='show_albums_by_artist')
 @plugin.route('/albums/')
 def show_albums(artist_id=None):
-    def context_menu(artist_id):
-        return [
-            (
-                _('album_info'),
-                'XBMC.Action(Info)'
-            ),
-            (
-                _('all_albums_by_this_artist'),
-                _view(
-                    endpoint='show_albums_by_artist',
-                    artist_id=artist_id,
-                    is_update='true'
-                )
-            ),
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
-
     plugin.set_content('albums')
 
     page = int(plugin.request.args.get('page', ['1'])[0])
@@ -116,13 +100,13 @@ def show_albums(artist_id=None):
             'album': album['name'],
             'year': int(album.get('releasedate', '0.0.0').split('-')[0]),
         },
-        'context_menu': context_menu(
+        'context_menu': album_context_menu(
             artist_id=album['artist_id']
         ),
         'replace_context_menu': True,
         'thumbnail': album['image'],
         'path': plugin.url_for(
-            endpoint='show_tracks',
+            endpoint='show_tracks_in_album',
             album_id=album['id']
         )
     } for i, album in enumerate(albums)]
@@ -139,16 +123,6 @@ def show_albums(artist_id=None):
 
 @plugin.route('/artists/')
 def show_artists():
-    def context_menu():
-        return [
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
-
     plugin.set_content('artists')
 
     page = int(plugin.request.args.get('page', ['1'])[0])
@@ -161,7 +135,7 @@ def show_artists():
             'count': i,
             'artist': artist['name'],
         },
-        'context_menu': context_menu(),
+        'context_menu': artist_context_menu(artist['id']),
         'replace_context_menu': True,
         'thumbnail': image_helper(artist['image']),
         'path': plugin.url_for(
@@ -182,16 +156,6 @@ def show_artists():
 
 @plugin.route('/radios/')
 def show_radios():
-    def context_menu():
-        return [
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
-
     plugin.set_content('music')
 
     page = int(plugin.request.args.get('page', ['1'])[0])
@@ -203,7 +167,7 @@ def show_radios():
         'info': {
             'count': i,
         },
-        'context_menu': context_menu(),
+        'context_menu': radio_context_menu(),
         'replace_context_menu': True,
         'thumbnail': radio['image'],
         'is_playable': True,
@@ -224,35 +188,7 @@ def show_radios():
 
 
 @plugin.route('/tracks/album/<album_id>/')
-def show_tracks(album_id):
-    def context_menu(artist_id, track_id):
-        return [
-            (
-                _('song_info'),
-                'XBMC.Action(Info)'
-            ),
-            (
-                _('all_albums_by_this_artist'),
-                _view(
-                    endpoint='show_albums_by_artist',
-                    artist_id=artist_id,
-                )
-            ),
-            (
-                _('show_similar_tracks'),
-                _view(
-                    endpoint='show_similar_tracks',
-                    track_id=track_id,
-                )
-            ),
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
-
+def show_tracks_in_album(album_id):
     plugin.set_content('songs')
 
     album, tracks = api.get_album_tracks(album_id=album_id)
@@ -267,9 +203,10 @@ def show_tracks(album_id):
             'album': album['name'],
             'year': int(album.get('releasedate', '0.0.0').split('-')[0]),
         },
-        'context_menu': context_menu(
+        'context_menu': track_context_menu(
             artist_id=album['artist_id'],
-            track_id=track['id']
+            track_id=track['id'],
+            album_id=album['id']
         ),
         'replace_context_menu': True,
         'is_playable': True,
@@ -285,34 +222,6 @@ def show_tracks(album_id):
 
 @plugin.route('/tracks/similar/<track_id>/')
 def show_similar_tracks(track_id):
-    def context_menu(artist_id, track_id):
-        return [
-            (
-                _('song_info'),
-                'XBMC.Action(Info)'
-            ),
-            (
-                _('all_albums_by_this_artist'),
-                _view(
-                    endpoint='show_albums_by_artist',
-                    artist_id=artist_id,
-                )
-            ),
-            (
-                _('show_similar_tracks'),
-                _view(
-                    endpoint='show_similar_tracks',
-                    track_id=track_id,
-                )
-            ),
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
-
     plugin.set_content('songs')
 
     page = int(plugin.request.args.get('page', ['1'])[0])
@@ -320,7 +229,11 @@ def show_similar_tracks(track_id):
     is_update = 'is_update' in plugin.request.args
 
     items = [{
-        'label': '%s - %s (%s)' % (track['artist_name'], track['name'], track['album_name']),
+        'label': '%s - %s (%s)' % (
+            track['artist_name'],
+            track['name'],
+            track['album_name']
+        ),
         'info': {
             'count': i,
             'tracknumber': i + 1,
@@ -329,7 +242,7 @@ def show_similar_tracks(track_id):
             'track': track['name'],
             'year': int(track.get('releasedate', '0.0.0').split('-')[0]),
         },
-        'context_menu': context_menu(
+        'context_menu': track_context_menu(
             artist_id=track['artist_id'],
             track_id=track['id']
         ),
@@ -395,6 +308,93 @@ def add_pagination_items(items):
         })
 
     return items
+
+
+def radio_context_menu():
+        return [
+            (
+                _('addon_settings'),
+                _run(
+                    endpoint='open_settings'
+                )
+            ),
+        ]
+
+
+def album_context_menu(artist_id):
+    return [
+        (
+            _('album_info'),
+            'XBMC.Action(Info)'
+        ),
+        (
+            _('all_albums_by_this_artist'),
+            _view(
+                endpoint='show_albums_by_artist',
+                artist_id=artist_id,
+            )
+        ),
+        (
+            _('addon_settings'),
+            _run(
+                endpoint='open_settings'
+            )
+        ),
+    ]
+
+
+def artist_context_menu(artist_id):
+        return [
+            (
+                _('all_albums_by_this_artist'),
+                _view(
+                    endpoint='show_albums_by_artist',
+                    artist_id=artist_id,
+                )
+            ),
+            (
+                _('addon_settings'),
+                _run(
+                    endpoint='open_settings'
+                )
+            ),
+        ]
+
+
+def track_context_menu(artist_id, track_id, album_id):
+        return [
+            (
+                _('song_info'),
+                'XBMC.Action(Info)'
+            ),
+            (
+                _('all_albums_by_this_artist'),
+                _view(
+                    endpoint='show_albums_by_artist',
+                    artist_id=artist_id,
+                )
+            ),
+            (
+                _('show_similar_tracks'),
+                _view(
+                    endpoint='show_similar_tracks',
+                    track_id=track_id,
+                )
+            ),
+            (
+                _('show_tracks_in_album'),
+                _view(
+                    endpoint='show_tracks_in_album',
+                    album_id=album_id,
+                )
+            ),
+            (
+                _('addon_settings'),
+                _run(
+                    endpoint='open_settings'
+                )
+            ),
+        ]
 
 
 def _run(*args, **kwargs):
