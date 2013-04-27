@@ -101,7 +101,8 @@ def show_albums(artist_id=None):
             'year': int(album.get('releasedate', '0.0.0').split('-')[0]),
         },
         'context_menu': album_context_menu(
-            artist_id=album['artist_id']
+            artist_id=album['artist_id'],
+            album_id=album['id'],
         ),
         'replace_context_menu': True,
         'thumbnail': album['image'],
@@ -294,11 +295,18 @@ def radio_context_menu():
         ]
 
 
-def album_context_menu(artist_id):
+def album_context_menu(artist_id, album_id):
     return [
         (
             _('album_info'),
             'XBMC.Action(Info)'
+        ),
+        (
+            _('all_tracks_in_this_album'),
+            _view(
+                endpoint='show_tracks_in_album',
+                album_id=album_id,
+            )
         ),
         (
             _('all_albums_by_this_artist'),
