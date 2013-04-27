@@ -111,14 +111,7 @@ def show_albums(artist_id=None):
         )
     } for i, album in enumerate(albums)]
 
-    items = add_pagination_items(items)
-
-    finish_kwargs = {
-        'update_listing': is_update
-    }
-    if plugin.get_setting('force_viewmode', bool):
-        finish_kwargs['view_mode'] = 'thumbnail'
-    return plugin.finish(items, **finish_kwargs)
+    return add_items_paginated(items)
 
 
 @plugin.route('/artists/')
@@ -144,14 +137,7 @@ def show_artists():
         )
     } for i, artist in enumerate(artists)]
 
-    items = add_pagination_items(items)
-
-    finish_kwargs = {
-        'update_listing': is_update
-    }
-    if plugin.get_setting('force_viewmode', bool):
-        finish_kwargs['view_mode'] = 'thumbnail'
-    return plugin.finish(items, **finish_kwargs)
+    return add_items_paginated(items)
 
 
 @plugin.route('/radios/')
@@ -177,14 +163,7 @@ def show_radios():
         )
     } for i, radio in enumerate(radios)]
 
-    items = add_pagination_items(items)
-
-    finish_kwargs = {
-        'update_listing': is_update
-    }
-    if plugin.get_setting('force_viewmode', bool):
-        finish_kwargs['view_mode'] = 'thumbnail'
-    return plugin.finish(items, **finish_kwargs)
+    return add_items_paginated(items)
 
 
 @plugin.route('/tracks/album/<album_id>/')
@@ -217,7 +196,7 @@ def show_tracks_in_album(album_id):
         )
     } for i, track in enumerate(tracks)]
 
-    return plugin.finish(items)
+    return add_items_paginated(items)
 
 
 @plugin.route('/tracks/similar/<track_id>/')
@@ -255,14 +234,7 @@ def show_similar_tracks(track_id):
         )
     } for i, track in enumerate(tracks)]
 
-    items = add_pagination_items(items)
-
-    finish_kwargs = {
-        'update_listing': is_update
-    }
-    if plugin.get_setting('force_viewmode', bool):
-        finish_kwargs['view_mode'] = 'thumbnail'
-    return plugin.finish(items, **finish_kwargs)
+    return add_items_paginated(items)
 
 
 @plugin.route('/play/track/<track_id>')
@@ -282,7 +254,7 @@ def open_settings():
     plugin.open_settings()
 
 
-def add_pagination_items(items):
+def add_items_paginated(items):
     page = int(plugin.request.args.get('page', ['1'])[0])
     has_next_page = len(items) == api.current_limit
     has_previous_page = page > 1
