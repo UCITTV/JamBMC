@@ -106,8 +106,6 @@ def show_albums(artist_id=None):
 
     page = int(plugin.request.args.get('page', ['1'])[0])
     albums = api.get_albums(page=page, artist_id=artist_id)
-    has_next_page = len(albums) == api.current_limit
-    has_previous_page = page > 1
     is_update = 'is_update' in plugin.request.args
 
     items = [{
@@ -129,25 +127,7 @@ def show_albums(artist_id=None):
         )
     } for i, album in enumerate(albums)]
 
-    if has_next_page:
-        items.append({
-            'label': '>> %s >>' % _('next'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) + 1)
-            )
-        })
-
-    if has_previous_page:
-        items.insert(0, {
-            'label': '<< %s <<' % _('previous'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) - 1)
-            )
-        })
+    items = add_pagination_items(items)
 
     finish_kwargs = {
         'update_listing': is_update
@@ -173,8 +153,6 @@ def show_artists():
 
     page = int(plugin.request.args.get('page', ['1'])[0])
     artists = api.get_artists(page=page)
-    has_next_page = len(artists) == api.current_limit
-    has_previous_page = page > 1
     is_update = 'is_update' in plugin.request.args
 
     items = [{
@@ -192,25 +170,7 @@ def show_artists():
         )
     } for i, artist in enumerate(artists)]
 
-    if has_next_page:
-        items.append({
-            'label': '>> %s >>' % _('next'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) + 1)
-            )
-        })
-
-    if has_previous_page:
-        items.insert(0, {
-            'label': '<< %s <<' % _('previous'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) - 1)
-            )
-        })
+    items = add_pagination_items(items)
 
     finish_kwargs = {
         'update_listing': is_update
@@ -236,8 +196,6 @@ def show_radios():
 
     page = int(plugin.request.args.get('page', ['1'])[0])
     radios = api.get_radios(page=page)
-    has_next_page = len(radios) == api.current_limit
-    has_previous_page = page > 1
     is_update = 'is_update' in plugin.request.args
 
     items = [{
@@ -255,25 +213,7 @@ def show_radios():
         )
     } for i, radio in enumerate(radios)]
 
-    if has_next_page:
-        items.append({
-            'label': '>> %s >>' % _('next'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) + 1)
-            )
-        })
-
-    if has_previous_page:
-        items.insert(0, {
-            'label': '<< %s <<' % _('previous'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) - 1)
-            )
-        })
+    items = add_pagination_items(items)
 
     finish_kwargs = {
         'update_listing': is_update
@@ -377,8 +317,6 @@ def show_similar_tracks(track_id):
 
     page = int(plugin.request.args.get('page', ['1'])[0])
     tracks = api.get_similar_tracks(track_id=track_id, page=page)
-    has_next_page = len(tracks) == api.current_limit
-    has_previous_page = page > 1
     is_update = 'is_update' in plugin.request.args
 
     items = [{
@@ -404,25 +342,7 @@ def show_similar_tracks(track_id):
         )
     } for i, track in enumerate(tracks)]
 
-    if has_next_page:
-        items.append({
-            'label': '>> %s >>' % _('next'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) + 1)
-            )
-        })
-
-    if has_previous_page:
-        items.insert(0, {
-            'label': '<< %s <<' % _('previous'),
-            'path': plugin.url_for(
-                endpoint=plugin.request.view,
-                is_update='true',
-                **dict(plugin.request.view_params, page=int(page) - 1)
-            )
-        })
+    items = add_pagination_items(items)
 
     finish_kwargs = {
         'update_listing': is_update
@@ -447,6 +367,34 @@ def play_radio(radio_id):
 @plugin.route('/settings')
 def open_settings():
     plugin.open_settings()
+
+
+def add_pagination_items(items):
+    page = int(plugin.request.args.get('page', ['1'])[0])
+    has_next_page = len(items) == api.current_limit
+    has_previous_page = page > 1
+
+    if has_next_page:
+        items.append({
+            'label': '>> %s >>' % _('next'),
+            'path': plugin.url_for(
+                endpoint=plugin.request.view,
+                is_update='true',
+                **dict(plugin.request.view_params, page=int(page) + 1)
+            )
+        })
+
+    if has_previous_page:
+        items.insert(0, {
+            'label': '<< %s <<' % _('previous'),
+            'path': plugin.url_for(
+                endpoint=plugin.request.view,
+                is_update='true',
+                **dict(plugin.request.view_params, page=int(page) - 1)
+            )
+        })
+
+    return items
 
 
 def _run(*args, **kwargs):
