@@ -223,7 +223,8 @@ def show_similar_tracks(track_id):
         },
         'context_menu': track_context_menu(
             artist_id=track['artist_id'],
-            track_id=track['id']
+            track_id=track['id'],
+            album_id=track['album_id']
         ),
         'replace_context_menu': True,
         'is_playable': True,
