@@ -25,7 +25,11 @@ API_URL = 'api.jamendo.com/v3.0/'
 USER_AGENT = 'XBMC Jamendo API'
 
 
-class AuthenticationError(Exception):
+class AuthError(Exception):
+    pass
+
+
+class ApiError(Exception):
     pass
 
 
@@ -162,11 +166,11 @@ class JamendoApi():
         return_code = json_data.get('headers', {}).get('code')
         if not return_code == 0:
             if return_code == 5:
-                raise AuthenticationError()
+                raise AuthError(json_data['headers']['error_message'])
             else:
-                raise Exception
-            if json_data.get('headers'):
-                pass
+                raise ApiError(json_data['headers']['error_message'])
+            if json_data.get('headers', {}).get('warnings'):
+                log('API-Warning: %s' % json_data['headers']['warnings'])
         self.log(u'_api_call got %d bytes response' % len(request.text))
         return json_data
 
