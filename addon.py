@@ -90,6 +90,8 @@ def root_menu():
          'path': plugin.url_for(endpoint='browse_root')},
         {'label': _('search'),
          'path': plugin.url_for(endpoint='search_root')},
+        {'label': _('show_radios'),
+         'path': plugin.url_for(endpoint='show_radios')},
     ]
     return plugin.finish(items)
 
@@ -116,8 +118,6 @@ def browse_root():
          'path': plugin.url_for(endpoint='show_albums')},
         {'label': _('show_artists'),
          'path': plugin.url_for(endpoint='show_artists')},
-        {'label': _('show_radios'),
-         'path': plugin.url_for(endpoint='show_radios')},
         {'label': _('show_playlists'),
          'path': plugin.url_for(endpoint='show_playlists')},
     ]
