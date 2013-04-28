@@ -29,18 +29,6 @@ SORT_METHODS = {
         'releasedate_desc', 'popularity_total', 'popularity_month',
         'popularity_week'
     ),
-    'albums.tracks': (
-        'name', 'id', 'releasedate', 'artist_id', 'artist_name',
-        'popularity_total', 'popularity_month', 'popularity_week',
-        'track_id', 'track_name'
-    ),
-    'playlists': (
-        'name', 'id', 'creationdate'
-    ),
-    'playlists.tracks': (
-        'name', 'id', 'creationdate', 'track_id', 'track_name',
-        'track_position'
-    ),
     'artists': (
         'name', 'id', 'joindate', 'popularity_total', 'popularity_month',
         'popularity_week'
@@ -49,9 +37,6 @@ SORT_METHODS = {
         'buzzrate', 'downloads_week', 'downloads_month', 'downloads_total',
         'listens_week', 'listens_month', 'listens_total', 'popularity_week',
         'popularity_month', 'popularity_total', 'releasedate'
-    ),
-    'radios': (
-        'id', 'name', 'dispname'
     ),
 }
 
@@ -110,7 +95,7 @@ class JamendoApi():
         artists = self._api_call(path, params).get('results', [])
         return artists
 
-    def get_tracks(self, page=1, sort_method=None):
+    def get_tracks(self, page=1, sort_method=None, filter_dict=None):
         path = 'tracks'
         params = {
             'limit': self._limit,
@@ -119,6 +104,8 @@ class JamendoApi():
         }
         if sort_method:
             params['order'] = sort_method
+        if filter_dict:
+            params.update(filter_dict)
         tracks = self._api_call(path, params).get('results', [])
         return tracks
 
