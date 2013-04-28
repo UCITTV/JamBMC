@@ -45,6 +45,11 @@ SORT_METHODS = {
         'name', 'id', 'joindate', 'popularity_total', 'popularity_month',
         'popularity_week'
     ),
+    'tracks': (
+        'buzzrate', 'downloads_week', 'downloads_month', 'downloads_total',
+        'listens_week', 'listens_month', 'listens_total', 'popularity_week',
+        'popularity_month', 'popularity_total', 'releasedate'
+    ),
     'radios': (
         'id', 'name', 'dispname'
     ),
@@ -104,6 +109,17 @@ class JamendoApi():
             params['order'] = sort_method
         artists = self._api_call(path, params).get('results', [])
         return artists
+
+    def get_tracks(self, page=1, sort_method=None):
+        path = 'tracks'
+        params = {
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+        }
+        if sort_method:
+            params['order'] = sort_method
+        tracks = self._api_call(path, params).get('results', [])
+        return tracks
 
     def get_radios(self, page=1):
         path = 'radios'
@@ -171,7 +187,12 @@ class JamendoApi():
             'client_id': self._client_id,
         })
         url = self._api_url + path
-        request = requests.get(url, headers=headers, params=params)
+        request = requests.get(
+            url,
+            headers=headers,
+            params=params,
+            verify=False
+        )
         return request.url
 
     def _api_call(self, path, params={}, post={}, auth=False):
