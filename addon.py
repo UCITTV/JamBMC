@@ -71,7 +71,27 @@ api = JamendoApi(client_id='de0f381a')
 
 
 @plugin.route('/')
-def show_root():
+def root_menu():
+    items = [
+        {'label': _('browse'),
+         'path': plugin.url_for(endpoint='browse_root')},
+        {'label': _('search'),
+         'path': plugin.url_for(endpoint='search_root')},
+    ]
+    return plugin.finish(items)
+
+
+@plugin.route('/search/')
+def search_root():
+    items = [
+        {'label': _('search_tracks'),
+         'path': plugin.url_for(endpoint='search_tracks')},
+    ]
+    return plugin.finish(items)
+
+
+@plugin.route('/browse/')
+def browse_root():
     items = [
         {'label': _('show_tracks'),
          'path': plugin.url_for(endpoint='show_tracks')},
@@ -150,6 +170,23 @@ def show_tracks():
     items = format_tracks(tracks)
     items.append(sort_method_switcher_item('tracks'))
     items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/tracks/search/')
+def search_tracks():
+    if 'query' in plugin.request.args:
+        query = plugin.request.args['query'][0]
+    else:
+        query = plugin.keyboard(heading=_('enter_search_terms'))
+    if not query:
+        return
+    plugin.set_content('songs')
+    page = int(args_get('page', 1))
+    sort_method = args_get('sort_method', 'buzzrate')
+    tracks = api.search_tracks(page=page, search_terms=query)
+    items = format_tracks(tracks)
+    items.append(sort_method_switcher_item('tracks'))
     return add_items(items)
 
 
