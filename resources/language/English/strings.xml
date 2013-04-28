@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
     <!-- Root menu entries -->
-    <string id="30000">Browse Music</string>
-    <string id="30001">Search Music</string>
-    <string id="30002">Show all tracks</string>
-    <string id="30003">Show all albums</string>
-    <string id="30004">Show all Artists</string>
-    <string id="30005">Show radios</string>
-    <string id="30006">Show playlists</string>
-    <string id="30007">Search for tracks</string>
-    <string id="30008">Search for albums</string>
-    <string id="30009">Search for artists</string>
+    <string id="30000">Browse all Music</string>
+    <string id="30001">Search for Music</string>
+    <string id="30002">Browse Tracks</string>
+    <string id="30003">Browse Albums</string>
+    <string id="30004">Browse Artists</string>
+    <string id="30005">Show Radios</string>
+    <string id="30006">Show Playlists</string>
+    <string id="30007">Search for Tracks</string>
+    <string id="30008">Search for Albums</string>
+    <string id="30009">Search for Artists</string>
     <!-- Misc strings -->
     <string id="30020">Page</string>
     <!-- Context menu -->
-    <string id="30030">Show album info</string>
+    <string id="30030">Show Album info</string>
     <string id="30031">Show song ingo</string>
-    <string id="30032">Show tracks in this album</string>
-    <string id="30033">Show albums by this artist</string>
-    <string id="30034">Show similar tracks</string>
+    <string id="30032">Show Tracks in this Album</string>
+    <string id="30033">Show Albums by this Artist</string>
+    <string id="30034">Show similar Tracks</string>
     <string id="30035">Add-on Settings</string>
     <!-- Dialogs -->
-    <string id="30040">Enter album title</string>
-    <string id="30041">Enter artist name</string>
-    <string id="30042">Enter track search terms</string>
+    <string id="30040">Enter Album title</string>
+    <string id="30041">Enter Artist name</string>
+    <string id="30042">Enter Track search terms</string>
     <!-- Info dialog -->
     <string id="30050">Language</string>
     <string id="30051">Instruments</string>
