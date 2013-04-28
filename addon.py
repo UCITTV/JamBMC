@@ -291,97 +291,53 @@ def add_items_paginated(items):
 
 
 def radio_context_menu():
-        return [
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
+    return [
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
 
 
 def album_context_menu(artist_id, album_id):
     return [
-        (
-            _('album_info'),
-            'XBMC.Action(Info)'
-        ),
-        (
-            _('all_tracks_in_this_album'),
-            _view(
-                endpoint='show_tracks_in_album',
-                album_id=album_id,
-            )
-        ),
-        (
-            _('all_albums_by_this_artist'),
-            _view(
-                endpoint='show_albums_by_artist',
-                artist_id=artist_id,
-            )
-        ),
-        (
-            _('addon_settings'),
-            _run(
-                endpoint='open_settings'
-            )
-        ),
+        (_('album_info'),
+         _action('info')),
+        (_('all_tracks_in_this_album'),
+         _view(endpoint='show_tracks_in_album',
+               album_id=album_id)),
+        (_('all_albums_by_this_artist'),
+         _view(endpoint='show_albums_by_artist',
+               artist_id=artist_id)),
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
     ]
 
 
 def artist_context_menu(artist_id):
-        return [
-            (
-                _('all_albums_by_this_artist'),
-                _view(
-                    endpoint='show_albums_by_artist',
-                    artist_id=artist_id,
-                )
-            ),
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
+    return [
+        (_('all_albums_by_this_artist'),
+         _view(endpoint='show_albums_by_artist',
+               artist_id=artist_id)),
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
 
 
 def track_context_menu(artist_id, track_id, album_id):
-        return [
-            (
-                _('song_info'),
-                'XBMC.Action(Info)'
-            ),
-            (
-                _('all_albums_by_this_artist'),
-                _view(
-                    endpoint='show_albums_by_artist',
-                    artist_id=artist_id,
-                )
-            ),
-            (
-                _('show_similar_tracks'),
-                _view(
-                    endpoint='show_similar_tracks',
-                    track_id=track_id,
-                )
-            ),
-            (
-                _('show_tracks_in_album'),
-                _view(
-                    endpoint='show_tracks_in_album',
-                    album_id=album_id,
-                )
-            ),
-            (
-                _('addon_settings'),
-                _run(
-                    endpoint='open_settings'
-                )
-            ),
-        ]
+    return [
+        (_('song_info'),
+         _action('info')),
+        (_('all_albums_by_this_artist'),
+         _view(endpoint='show_albums_by_artist',
+               artist_id=artist_id)),
+        (_('show_similar_tracks'),
+         _view(endpoint='show_similar_tracks',
+               track_id=track_id)),
+        (_('all_tracks_in_this_album'),
+         _view(endpoint='show_tracks_in_album',
+               album_id=album_id)),
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
 
 
 def _run(*args, **kwargs):
@@ -390,6 +346,10 @@ def _run(*args, **kwargs):
 
 def _view(*args, **kwargs):
     return 'XBMC.Container.Update(%s)' % plugin.url_for(*args, **kwargs)
+
+
+def _action(arg):
+    return 'XBMC.Action(%s)' % arg
 
 
 def image_helper(url):
