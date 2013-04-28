@@ -258,6 +258,7 @@ def open_settings():
 
 def add_items_paginated(items):
     page = int(plugin.request.args.get('page', ['1'])[0])
+    is_update = 'is_update' in plugin.request.args
     has_next_page = len(items) == api.current_limit
     has_previous_page = page > 1
 
@@ -281,7 +282,12 @@ def add_items_paginated(items):
             )
         })
 
-    return items
+    finish_kwargs = {
+        'update_listing': is_update
+    }
+    if plugin.get_setting('force_viewmode', bool):
+        finish_kwargs['view_mode'] = 'thumbnail'
+    return plugin.finish(items, **finish_kwargs)
 
 
 def radio_context_menu():
