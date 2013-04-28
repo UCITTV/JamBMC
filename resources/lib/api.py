@@ -24,6 +24,32 @@ import requests
 API_URL = 'api.jamendo.com/v3.0/'
 USER_AGENT = 'XBMC Jamendo API'
 
+SORT_METHODS = {
+    'albums': (
+        'releasedate_desc', 'popularity_total', 'popularity_month',
+        'popularity_week'
+    ),
+    'albums.tracks': (
+        'name', 'id', 'releasedate', 'artist_id', 'artist_name',
+        'popularity_total', 'popularity_month', 'popularity_week',
+        'track_id', 'track_name'
+    ),
+    'playlists': (
+        'name', 'id', 'creationdate'
+    ),
+    'playlists.tracks': (
+        'name', 'id', 'creationdate', 'track_id', 'track_name',
+        'track_position'
+    ),
+    'artists': (
+        'name', 'id', 'joindate', 'popularity_total', 'popularity_month',
+        'popularity_week'
+    ),
+    'radios': (
+        'id', 'name', 'dispname'
+    ),
+}
+
 
 class AuthError(Exception):
     pass
@@ -60,15 +86,17 @@ class JamendoApi():
         self._audioformat = audioformat
         self._limit = limit
 
-    def get_albums(self, page=1, artist_id=None):
+    def get_albums(self, page=1, artist_id=None, sort_method=None):
         path = 'albums'
         params = {
             'imagesize': 400,
             'limit': self._limit,
-            'offset': self._limit * (int(page) - 1)
+            'offset': self._limit * (int(page) - 1),
         }
         if artist_id:
             params['artist_id'] = [artist_id]
+        if sort_method:
+            params['order'] = sort_method
         albums = self._api_call(path, params).get('results', [])
         return albums
 
@@ -81,12 +109,14 @@ class JamendoApi():
         playlists = self._api_call(path, params).get('results', [])
         return playlists
 
-    def get_artists(self, page=1):
+    def get_artists(self, page=1, sort_method=None):
         path = 'artists'
         params = {
             'limit': self._limit,
-            'offset': self._limit * (int(page) - 1)
+            'offset': self._limit * (int(page) - 1),
         }
+        if sort_method:
+            params['order'] = sort_method
         artists = self._api_call(path, params).get('results', [])
         return artists
 
@@ -199,6 +229,10 @@ class JamendoApi():
     def _api_url(self):
         scheme = 'https' if self._use_https else 'http'
         return '%s://%s' % (scheme, API_URL)
+
+    @staticmethod
+    def get_sort_methods(entity):
+        return SORT_METHODS.get(entity, [])
 
     def log(self, message):
         print u'[%s]: %s' % (self.__class__.__name__, repr(message))
