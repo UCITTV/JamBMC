@@ -58,9 +58,9 @@ class JamendoApi():
     def __init__(self, client_id, use_https=True, limit=100,
                  audioformat='ogg'):
         self._client_id = client_id
-        self._use_https = use_https
+        self._use_https = bool(use_https)
         self._audioformat = audioformat
-        self._limit = limit
+        self._limit = min(int(limit), 100)
 
     def get_albums(self, page=1, artist_id=None, sort_method=None,
                    search_terms=None):
@@ -223,8 +223,8 @@ class JamendoApi():
                 raise AuthError(json_data['headers']['error_message'])
             else:
                 raise ApiError(json_data['headers']['error_message'])
-            if json_data.get('headers', {}).get('warnings'):
-                log('API-Warning: %s' % json_data['headers']['warnings'])
+        if json_data.get('headers', {}).get('warnings'):
+            log('API-Warning: %s' % json_data['headers']['warnings'])
         self.log(u'_api_call got %d bytes response' % len(request.text))
         return json_data.get('results', [])
 

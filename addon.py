@@ -20,12 +20,6 @@
 from xbmcswift2 import Plugin, xbmc, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi
 
-# TODO
-# Add Fanart
-# Add Tag search
-# Add search
-# Add login/favorites
-# Translation
 
 STRINGS = {
     # Root menu entries
@@ -67,7 +61,10 @@ class Plugin_patched(Plugin):
 
 
 plugin = Plugin_patched()
-api = JamendoApi(client_id='de0f381a')
+api = JamendoApi(
+    client_id='de0f381a',
+    limit=plugin.get_setting('limit', int)
+)
 
 
 @plugin.route('/')

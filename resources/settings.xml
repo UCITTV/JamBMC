@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <setting id="username" type="text" label="30300" />
-    <setting id="password" type="text" label="30301" option="hidden" />
-    <setting id="use_https" type="bool" label="30303" default="true" />
+    <setting id="limit" type="labelenum" label="30300" values="25|50|75|100" default="100"/>
+    <setting id="force_viewmode" type="bool" label="30301" default="true"/>
+    <setting id="use_https" type="bool" label="30302" default="true"/>
 </settings>

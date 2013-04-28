@@ -16,12 +16,7 @@
     <!-- Help Dialog -->
 
     <!-- Settings -->
-    <string id="30300">Username</string>
-    <string id="30301">Password</string>
-    <string id="30302">Default List</string>
-    <string id="30303">Use HTTPS</string>
-    <string id="30310">Default Privacy for new Lists</string>
-    <string id="30311">Private</string>
-    <string id="30312">Friends</string>
-    <string id="30313">Public</string>
+    <string id="30300">Limit (Items per Page)</string>
+    <string id="30301">Force Thumbnail-View</string>
+    <string id="30302">Use HTTPS</string>
 </strings>
