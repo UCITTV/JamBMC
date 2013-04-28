@@ -67,7 +67,7 @@ class Plugin_patched(Plugin):
 
 
 plugin = Plugin_patched()
-api = JamendoApi(client_id='b6747d04')
+api = JamendoApi(client_id='de0f381a')
 
 
 @plugin.route('/')
