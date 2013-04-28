@@ -72,7 +72,7 @@ class JamendoApi():
             params['artist_id'] = [artist_id]
         if sort_method:
             params['order'] = sort_method
-        albums = self._api_call(path, params).get('results', [])
+        albums = self._api_call(path, params)
         return albums
 
     def get_playlists(self, page=1):
@@ -81,7 +81,7 @@ class JamendoApi():
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1)
         }
-        playlists = self._api_call(path, params).get('results', [])
+        playlists = self._api_call(path, params)
         return playlists
 
     def get_artists(self, page=1, sort_method=None):
@@ -92,7 +92,7 @@ class JamendoApi():
         }
         if sort_method:
             params['order'] = sort_method
-        artists = self._api_call(path, params).get('results', [])
+        artists = self._api_call(path, params)
         return artists
 
     def get_tracks(self, page=1, sort_method=None, filter_dict=None):
@@ -106,7 +106,7 @@ class JamendoApi():
             params['order'] = sort_method
         if filter_dict:
             params.update(filter_dict)
-        tracks = self._api_call(path, params).get('results', [])
+        tracks = self._api_call(path, params)
         return tracks
 
     def get_radios(self, page=1):
@@ -117,13 +117,13 @@ class JamendoApi():
             'imagesize': 150,
             'type': 'www'
         }
-        radios = self._api_call(path, params).get('results', [])
+        radios = self._api_call(path, params)
         return radios
 
     def get_album_tracks(self, album_id):
         path = 'albums/tracks'
         params = {'id': [album_id]}
-        albums = self._api_call(path, params).get('results', [])
+        albums = self._api_call(path, params)
         album = albums[0] if albums else {}
         tracks = album.get('tracks', [])
         return album, tracks
@@ -131,7 +131,7 @@ class JamendoApi():
     def get_playlist_tracks(self, playlist_id):
         path = 'playlists/tracks'
         params = {'id': [playlist_id]}
-        playlists = self._api_call(path, params).get('results', [])
+        playlists = self._api_call(path, params)
         playlist = playlists[0] if playlists else {}
         tracks = playlist.get('tracks', [])
         return playlist, tracks
@@ -145,7 +145,7 @@ class JamendoApi():
             'audioformat': self._audioformat,
             'imagesize': 400,
         }
-        tracks = self._api_call(path, params).get('results', [])
+        tracks = self._api_call(path, params)
         return tracks
 
     def get_track_url(self, track_id):
@@ -163,7 +163,7 @@ class JamendoApi():
         params = {
             'id': radio_id
         }
-        radios = self._api_call(path, params).get('results', [])
+        radios = self._api_call(path, params)
         radio = radios[0] if radios else {}
         return radio.get('stream')
 
@@ -214,7 +214,7 @@ class JamendoApi():
             if json_data.get('headers', {}).get('warnings'):
                 log('API-Warning: %s' % json_data['headers']['warnings'])
         self.log(u'_api_call got %d bytes response' % len(request.text))
-        return json_data
+        return json_data.get('results', [])
 
     @property
     def current_limit(self):
