@@ -23,20 +23,36 @@ from resources.lib.api import JamendoApi
 
 STRINGS = {
     # Root menu entries
-
+    'browse': 30000,
+    'search': 30001,
+    'show_tracks': 30002,
+    'show_albums': 30003,
+    'show_artists': 30004,
+    'show_radios': 30005,
+    'show_playlists': 30006,
+    'search_tracks': 30007,
+    'search_albums': 30008,
+    'search_artists': 30009,
+    # Misc strings
+    'page': 30020,
     # Context menu
-    'addon_settings': 30100,
-
+    'album_info': 30030,
+    'song_info': 30031,
+    'show_tracks_in_this_album': 30032,
+    'show_albums_by_this_artist': 30033,
+    'show_similar_tracks': 30034,
+    'addon_settings': 30035,
     # Dialogs
-
+    'search_heading_album': 30040,
+    'search_heading_artist': 30041,
+    'search_heading_tracks': 30042,
+    # Info dialog
+    'language': 30050,
+    'instruments': 30051,
+    'vartags': 30052,
     # Error dialogs
-    'connection_error': 30120,
-    'wrong_credentials': 30121,
-    'want_set_now': 30122,
-    # Noticications
-
-    # Help Dialog
-
+    'network_error': 30060,
+    # Notifications
 }
 
 
@@ -122,7 +138,7 @@ def show_albums():
 
 @plugin.route('/albums/search/')
 def search_albums():
-    query = args_get('query') or plugin.keyboard(heading=_('search_term'))
+    query = args_get('query') or plugin.keyboard(heading=_('search_heading_album'))
     if not query:
         return
     plugin.set_content('albums')
@@ -165,7 +181,7 @@ def show_artists():
 
 @plugin.route('/artists/search/')
 def search_artists():
-    query = args_get('query') or plugin.keyboard(heading=_('search_term'))
+    query = args_get('query') or plugin.keyboard(heading=_('search_heading_artist'))
     if not query:
         return
     plugin.set_content('artists')
@@ -198,7 +214,7 @@ def show_tracks():
 
 @plugin.route('/tracks/search/')
 def search_tracks():
-    query = args_get('query') or plugin.keyboard(heading=_('search_term'))
+    query = args_get('query') or plugin.keyboard(heading=_('search_heading_tracks'))
     if not query:
         return
     plugin.set_content('songs')
@@ -550,10 +566,10 @@ def album_context_menu(artist_id, album_id):
     return [
         (_('album_info'),
          _action('info')),
-        (_('all_tracks_in_this_album'),
+        (_('show_tracks_in_this_album'),
          _view(endpoint='show_tracks_in_album',
                album_id=album_id)),
-        (_('all_albums_by_this_artist'),
+        (_('show_albums_by_this_artist'),
          _view(endpoint='show_albums_by_artist',
                artist_id=artist_id)),
         (_('addon_settings'),
@@ -563,7 +579,7 @@ def album_context_menu(artist_id, album_id):
 
 def artist_context_menu(artist_id):
     return [
-        (_('all_albums_by_this_artist'),
+        (_('show_albums_by_this_artist'),
          _view(endpoint='show_albums_by_artist',
                artist_id=artist_id)),
         (_('addon_settings'),
@@ -575,13 +591,13 @@ def track_context_menu(artist_id, track_id, album_id):
     return [
         (_('song_info'),
          _action('info')),
-        (_('all_albums_by_this_artist'),
+        (_('show_albums_by_this_artist'),
          _view(endpoint='show_albums_by_artist',
                artist_id=artist_id)),
         (_('show_similar_tracks'),
          _view(endpoint='show_similar_tracks',
                track_id=track_id)),
-        (_('all_tracks_in_this_album'),
+        (_('show_tracks_in_this_album'),
          _view(endpoint='show_tracks_in_album',
                album_id=album_id)),
         (_('addon_settings'),
