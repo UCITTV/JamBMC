@@ -86,6 +86,10 @@ def search_root():
     items = [
         {'label': _('search_tracks'),
          'path': plugin.url_for(endpoint='search_tracks')},
+        {'label': _('search_albums'),
+         'path': plugin.url_for(endpoint='search_albums')},
+        {'label': _('search_artists'),
+         'path': plugin.url_for(endpoint='search_artists')},
     ]
     return plugin.finish(items)
 
@@ -116,6 +120,20 @@ def show_albums():
     items = format_albums(albums)
     items.append(sort_method_switcher_item('albums'))
     items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/albums/search/')
+def search_albums():
+    if 'query' in plugin.request.args:
+        query = plugin.request.args['query'][0]
+    else:
+        query = plugin.keyboard(heading=_('enter_search_terms'))
+    if not query:
+        return
+    plugin.set_content('albums')
+    albums = api.get_albums(search_terms=query)
+    items = format_albums(albums)
     return add_items(items)
 
 
@@ -151,6 +169,20 @@ def show_artists():
     return add_items(items)
 
 
+@plugin.route('/artists/search/')
+def search_artists():
+    if 'query' in plugin.request.args:
+        query = plugin.request.args['query'][0]
+    else:
+        query = plugin.keyboard(heading=_('enter_search_terms'))
+    if not query:
+        return
+    plugin.set_content('artists')
+    artists = api.get_artists(search_terms=query)
+    items = format_artists(artists)
+    return add_items(items)
+
+
 @plugin.route('/radios/')
 def show_radios():
     plugin.set_content('music')
@@ -182,11 +214,8 @@ def search_tracks():
     if not query:
         return
     plugin.set_content('songs')
-    page = int(args_get('page', 1))
-    sort_method = args_get('sort_method', 'buzzrate')
-    tracks = api.search_tracks(page=page, search_terms=query)
+    tracks = api.search_tracks(search_terms=query)
     items = format_tracks(tracks)
-    items.append(sort_method_switcher_item('tracks'))
     return add_items(items)
 
 

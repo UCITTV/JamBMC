@@ -61,7 +61,7 @@ class JamendoApi():
         self._audioformat = audioformat
         self._limit = limit
 
-    def get_albums(self, page=1, artist_id=None, sort_method=None):
+    def get_albums(self, page=1, artist_id=None, sort_method=None, search_terms=None):
         path = 'albums'
         params = {
             'imagesize': 400,
@@ -72,6 +72,8 @@ class JamendoApi():
             params['artist_id'] = [artist_id]
         if sort_method:
             params['order'] = sort_method
+        if search_terms:
+            params['namesearch'] = search_terms
         albums = self._api_call(path, params)
         return albums
 
@@ -84,7 +86,7 @@ class JamendoApi():
         playlists = self._api_call(path, params)
         return playlists
 
-    def get_artists(self, page=1, sort_method=None):
+    def get_artists(self, page=1, sort_method=None, search_terms=None):
         path = 'artists'
         params = {
             'limit': self._limit,
@@ -92,6 +94,8 @@ class JamendoApi():
         }
         if sort_method:
             params['order'] = sort_method
+        if search_terms:
+            params['namesearch'] = search_terms
         artists = self._api_call(path, params)
         return artists
 
