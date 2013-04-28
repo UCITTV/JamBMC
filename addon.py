@@ -125,10 +125,7 @@ def show_albums():
 
 @plugin.route('/albums/search/')
 def search_albums():
-    if 'query' in plugin.request.args:
-        query = plugin.request.args['query'][0]
-    else:
-        query = plugin.keyboard(heading=_('enter_search_terms'))
+    query = args_get('query') or plugin.keyboard(heading=_('search_term'))
     if not query:
         return
     plugin.set_content('albums')
@@ -171,10 +168,7 @@ def show_artists():
 
 @plugin.route('/artists/search/')
 def search_artists():
-    if 'query' in plugin.request.args:
-        query = plugin.request.args['query'][0]
-    else:
-        query = plugin.keyboard(heading=_('enter_search_terms'))
+    query = args_get('query') or plugin.keyboard(heading=_('search_term'))
     if not query:
         return
     plugin.set_content('artists')
@@ -207,10 +201,7 @@ def show_tracks():
 
 @plugin.route('/tracks/search/')
 def search_tracks():
-    if 'query' in plugin.request.args:
-        query = plugin.request.args['query'][0]
-    else:
-        query = plugin.keyboard(heading=_('enter_search_terms'))
+    query = args_get('query') or plugin.keyboard(heading=_('search_term'))
     if not query:
         return
     plugin.set_content('songs')
