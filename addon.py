@@ -73,6 +73,8 @@ api = JamendoApi(client_id='b6747d04')
 @plugin.route('/')
 def show_root():
     items = [
+        {'label': _('show_tracks'),
+         'path': plugin.url_for(endpoint='show_tracks')},
         {'label': _('show_albums'),
          'path': plugin.url_for(endpoint='show_albums')},
         {'label': _('show_artists'),
@@ -227,6 +229,48 @@ def show_radios():
     return add_items_paginated(items)
 
 
+@plugin.route('/tracks/')
+def show_tracks():
+    plugin.set_content('songs')
+
+    page = int(args_get('page', 1))
+    sort_method = args_get('sort_method', 'buzzrate')
+    tracks = api.get_tracks(page=page, sort_method=sort_method)
+
+    items = [{
+        'label': '%s - %s (%s)' % (
+            track['artist_name'],
+            track['name'],
+            track['album_name']
+        ),
+        'info': {
+            'count': i + 2,
+            'title': track['name'],
+            'album': track['album_name'],
+            'duration': track['duration'],
+            'artist': track['artist_name'],
+            'track': track['name'],
+            'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
+        },
+        'context_menu': track_context_menu(
+            artist_id=track['artist_id'],
+            track_id=track['id'],
+            album_id=track['album_id']
+        ),
+        'replace_context_menu': True,
+        'is_playable': True,
+        'thumbnail': track['album_image'],
+        'path': plugin.url_for(
+            endpoint='play_song',
+            track_id=track['id']
+        )
+    } for i, track in enumerate(tracks)]
+
+    items.append(sort_method_switcher_item('tracks'))
+
+    return add_items_paginated(items)
+
+
 @plugin.route('/tracks/album/<album_id>/')
 def show_tracks_in_album(album_id):
     plugin.set_content('songs')
@@ -240,6 +284,7 @@ def show_tracks_in_album(album_id):
             'tracknumber': i + 1,
             'duration': track['duration'],
             'artist': album['artist_name'],
+            'title': track['name'],
             'album': album['name'],
             'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
         },
@@ -305,7 +350,8 @@ def show_similar_tracks(track_id):
         ),
         'info': {
             'count': i + 2,
-            'tracknumber': i + 1,
+            'title': track['name'],
+            'album': track['album_name'],
             'duration': track['duration'],
             'artist': track['artist_name'],
             'track': track['name'],
