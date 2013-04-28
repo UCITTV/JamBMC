@@ -88,9 +88,8 @@ def show_root():
 def show_albums(artist_id=None):
     plugin.set_content('albums')
 
-    page = int(plugin.request.args.get('page', ['1'])[0])
+    page = int(args_get('page', 1))
     albums = api.get_albums(page=page, artist_id=artist_id)
-    is_update = 'is_update' in plugin.request.args
 
     items = [{
         'label': '%s - %s' % (album['artist_name'], album['name']),
@@ -119,9 +118,8 @@ def show_albums(artist_id=None):
 def show_artists():
     plugin.set_content('artists')
 
-    page = int(plugin.request.args.get('page', ['1'])[0])
+    page = int(args_get('page', 1))
     artists = api.get_artists(page=page)
-    is_update = 'is_update' in plugin.request.args
 
     items = [{
         'label': artist['name'],
@@ -145,9 +143,8 @@ def show_artists():
 def show_radios():
     plugin.set_content('music')
 
-    page = int(plugin.request.args.get('page', ['1'])[0])
+    page = int(args_get('page', 1))
     radios = api.get_radios(page=page)
-    is_update = 'is_update' in plugin.request.args
 
     items = [{
         'label': radio['dispname'],
@@ -204,9 +201,8 @@ def show_tracks_in_album(album_id):
 def show_similar_tracks(track_id):
     plugin.set_content('songs')
 
-    page = int(plugin.request.args.get('page', ['1'])[0])
+    page = int(args_get('page', 1))
     tracks = api.get_similar_tracks(track_id=track_id, page=page)
-    is_update = 'is_update' in plugin.request.args
 
     items = [{
         'label': '%s - %s (%s)' % (
@@ -257,7 +253,7 @@ def open_settings():
 
 
 def add_items_paginated(items):
-    page = int(plugin.request.args.get('page', ['1'])[0])
+    page = int(args_get('page', 1))
     is_update = 'is_update' in plugin.request.args
     has_next_page = len(items) == api.current_limit
     has_previous_page = page > 1
@@ -350,6 +346,10 @@ def _view(*args, **kwargs):
 
 def _action(arg):
     return 'XBMC.Action(%s)' % arg
+
+
+def args_get(arg_name, default=None):
+    return plugin.request.args.get('page', [default])[0]
 
 
 def image_helper(url):
