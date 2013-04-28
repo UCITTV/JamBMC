@@ -249,7 +249,8 @@ def show_tracks():
             'album': track['album_name'],
             'duration': track['duration'],
             'artist': track['artist_name'],
-            'track': track['name'],
+            'genre': ', '.join(track['musicinfo']['tags']['genres']),
+            'comment': get_comment(track['musicinfo']),
             'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
         },
         'context_menu': track_context_menu(
@@ -354,7 +355,6 @@ def show_similar_tracks(track_id):
             'album': track['album_name'],
             'duration': track['duration'],
             'artist': track['artist_name'],
-            'track': track['name'],
             'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
         },
         'context_menu': track_context_menu(
@@ -408,6 +408,23 @@ def show_sort_methods(entity):
         )
     } for i, sort_method in enumerate(sort_methods)]
     return plugin.finish(items, update_listing=True)
+
+
+def get_comment(musicinfo):
+    return '[CR]'.join((
+        '[B]%s[/B]: %s' % (
+            _('language'),
+            musicinfo['lang']
+        ),
+        '[B]%s[/B]: %s' % (
+            _('instruments'),
+            ', '.join(musicinfo['tags']['instruments'])
+        ),
+        '[B]%s[/B]: %s' % (
+            _('vartags'),
+            ', '.join(musicinfo['tags']['vartags'])
+        ),
+    ))
 
 
 def sort_method_switcher_item(entity):

@@ -115,6 +115,7 @@ class JamendoApi():
         params = {
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
+            'include': 'musicinfo'
         }
         if sort_method:
             params['order'] = sort_method
