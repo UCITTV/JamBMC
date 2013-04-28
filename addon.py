@@ -90,153 +90,122 @@ def show_root():
 @plugin.route('/albums/')
 def show_albums():
     plugin.set_content('albums')
-
     page = int(args_get('page', 1))
     sort_method = args_get('sort_method')
     albums = api.get_albums(page=page, sort_method=sort_method)
-
-    items = [{
-        'label': '%s - %s' % (album['artist_name'], album['name']),
-        'info': {
-            'count': i + 2,
-            'artist': album['artist_name'],
-            'album': album['name'],
-            'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
-        },
-        'context_menu': album_context_menu(
-            artist_id=album['artist_id'],
-            album_id=album['id'],
-        ),
-        'replace_context_menu': True,
-        'thumbnail': album['image'],
-        'path': plugin.url_for(
-            endpoint='show_tracks_in_album',
-            album_id=album['id']
-        )
-    } for i, album in enumerate(albums)]
-
+    items = format_albums(albums)
     items.append(sort_method_switcher_item('albums'))
-
-    return add_items_paginated(items)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
 
 
 @plugin.route('/albums/<artist_id>/')
 def show_albums_by_artist(artist_id):
     plugin.set_content('albums')
-
     page = int(args_get('page', 1))
     albums = api.get_albums(page=page, artist_id=artist_id)
-
-    items = [{
-        'label': '%s - %s' % (album['artist_name'], album['name']),
-        'info': {
-            'count': i + 2,
-            'artist': album['artist_name'],
-            'album': album['name'],
-            'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
-        },
-        'context_menu': album_context_menu(
-            artist_id=album['artist_id'],
-            album_id=album['id'],
-        ),
-        'replace_context_menu': True,
-        'thumbnail': album['image'],
-        'path': plugin.url_for(
-            endpoint='show_tracks_in_album',
-            album_id=album['id']
-        )
-    } for i, album in enumerate(albums)]
-
-    return add_items_paginated(items)
+    items = format_albums(albums)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
 
 
 @plugin.route('/playlists/')
 def show_playlists():
     plugin.set_content('music')
-
     page = int(args_get('page', 1))
     playlists = api.get_playlists(page=page)
-
-    items = [{
-        'label': '%s (%s)' % (playlist['name'], playlist['user_name']),
-        'info': {
-            'count': i + 2,
-            'artist': playlist['user_name'],
-            'album': playlist['name'],
-            'year': int(playlist.get('creationdate', '0-0-0').split('-')[0]),
-        },
-        'context_menu': playlist_context_menu(),
-        'replace_context_menu': True,
-        'path': plugin.url_for(
-            endpoint='show_tracks_in_playlist',
-            playlist_id=playlist['id']
-        )
-    } for i, playlist in enumerate(playlists)]
-
-    return add_items_paginated(items)
+    items = format_playlists(playlists)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
 
 
 @plugin.route('/artists/')
 def show_artists():
     plugin.set_content('artists')
-
     page = int(args_get('page', 1))
     sort_method = args_get('sort_method')
     artists = api.get_artists(page=page, sort_method=sort_method)
-
-    items = [{
-        'label': artist['name'],
-        'info': {
-            'count': i + 2,
-            'artist': artist['name'],
-        },
-        'context_menu': artist_context_menu(artist['id']),
-        'replace_context_menu': True,
-        'thumbnail': image_helper(artist['image']),
-        'path': plugin.url_for(
-            endpoint='show_albums_by_artist',
-            artist_id=artist['id'],
-        )
-    } for i, artist in enumerate(artists)]
-
+    items = format_artists(artists)
     items.append(sort_method_switcher_item('artists'))
-
-    return add_items_paginated(items)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
 
 
 @plugin.route('/radios/')
 def show_radios():
     plugin.set_content('music')
-
     page = int(args_get('page', 1))
     radios = api.get_radios(page=page)
-
-    items = [{
-        'label': radio['dispname'],
-        'info': {
-            'count': i + 2,
-        },
-        'context_menu': radio_context_menu(),
-        'replace_context_menu': True,
-        'thumbnail': radio['image'],
-        'is_playable': True,
-        'path': plugin.url_for(
-            endpoint='play_radio',
-            radio_id=radio['id'],
-        )
-    } for i, radio in enumerate(radios)]
-
-    return add_items_paginated(items)
+    items = format_radios(radios)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
 
 
 @plugin.route('/tracks/')
 def show_tracks():
     plugin.set_content('songs')
-
     page = int(args_get('page', 1))
     sort_method = args_get('sort_method', 'buzzrate')
     tracks = api.get_tracks(page=page, sort_method=sort_method)
+    items = format_tracks(tracks)
+    items.append(sort_method_switcher_item('tracks'))
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
 
+
+@plugin.route('/tracks/album/<album_id>/')
+def show_tracks_in_album(album_id):
+    plugin.set_content('songs')
+    tracks = api.get_tracks(filter_dict={'album_id': album_id})
+    items = format_tracks(tracks)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/tracks/playlist/<playlist_id>/')
+def show_tracks_in_playlist(playlist_id):
+    plugin.set_content('songs')
+    playlist, tracks = api.get_playlist_tracks(playlist_id=playlist_id)
+    items = format_playlist_tracks(playlist, tracks)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/tracks/similar/<track_id>/')
+def show_similar_tracks(track_id):
+    plugin.set_content('songs')
+    page = int(args_get('page', 1))
+    tracks = api.get_similar_tracks(track_id=track_id, page=page)
+    items = format_similar_tracks(tracks)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/sort_methods/<entity>/')
+def show_sort_methods(entity):
+    sort_methods = api.get_sort_methods(entity)
+    items = format_sort_methods(sort_methods, entity)
+    return plugin.finish(items, update_listing=True)
+
+
+@plugin.route('/play/track/<track_id>')
+def play_song(track_id):
+    stream_url = api.get_track_url(track_id)
+    return plugin.set_resolved_url(stream_url)
+
+
+@plugin.route('/play/radio/<radio_id>')
+def play_radio(radio_id):
+    stream_url = api.get_radio_url(radio_id)
+    return plugin.set_resolved_url(stream_url)
+
+
+@plugin.route('/settings')
+def open_settings():
+    plugin.open_settings()
+
+
+def format_tracks(tracks):
     items = [{
         'label': '%s - %s (%s)' % (
             track['artist_name'],
@@ -266,52 +235,88 @@ def show_tracks():
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
-
-    items.append(sort_method_switcher_item('tracks'))
-
-    return add_items_paginated(items)
+    return items
 
 
-@plugin.route('/tracks/album/<album_id>/')
-def show_tracks_in_album(album_id):
-    plugin.set_content('songs')
-
-    album, tracks = api.get_album_tracks(album_id=album_id)
-
+def format_albums(albums):
     items = [{
-        'label': '%s - %s' % (album['artist_name'], track['name']),
+        'label': '%s - %s' % (album['artist_name'], album['name']),
         'info': {
             'count': i + 2,
-            'tracknumber': i + 1,
-            'duration': track['duration'],
             'artist': album['artist_name'],
-            'title': track['name'],
             'album': album['name'],
             'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
         },
-        'context_menu': track_context_menu(
+        'context_menu': album_context_menu(
             artist_id=album['artist_id'],
-            track_id=track['id'],
-            album_id=album['id']
+            album_id=album['id'],
         ),
         'replace_context_menu': True,
-        'is_playable': True,
         'thumbnail': album['image'],
         'path': plugin.url_for(
-            endpoint='play_song',
-            track_id=track['id']
+            endpoint='show_tracks_in_album',
+            album_id=album['id']
         )
-    } for i, track in enumerate(tracks)]
+    } for i, album in enumerate(albums)]
+    return items
 
-    return add_items_paginated(items)
+
+def format_playlists(playlists):
+    items = [{
+        'label': '%s (%s)' % (playlist['name'], playlist['user_name']),
+        'info': {
+            'count': i + 2,
+            'artist': playlist['user_name'],
+            'album': playlist['name'],
+            'year': int(playlist.get('creationdate', '0-0-0').split('-')[0]),
+        },
+        'context_menu': playlist_context_menu(),
+        'replace_context_menu': True,
+        'path': plugin.url_for(
+            endpoint='show_tracks_in_playlist',
+            playlist_id=playlist['id']
+        )
+    } for i, playlist in enumerate(playlists)]
+    return items
 
 
-@plugin.route('/tracks/playlist/<playlist_id>/')
-def show_tracks_in_playlist(playlist_id):
-    plugin.set_content('songs')
+def format_artists(artists):
+    items = [{
+        'label': artist['name'],
+        'info': {
+            'count': i + 2,
+            'artist': artist['name'],
+        },
+        'context_menu': artist_context_menu(artist['id']),
+        'replace_context_menu': True,
+        'thumbnail': image_helper(artist['image']),
+        'path': plugin.url_for(
+            endpoint='show_albums_by_artist',
+            artist_id=artist['id'],
+        )
+    } for i, artist in enumerate(artists)]
+    return items
 
-    playlist, tracks = api.get_playlist_tracks(playlist_id=playlist_id)
 
+def format_radios(radios):
+    items = [{
+        'label': radio['dispname'],
+        'info': {
+            'count': i + 2,
+        },
+        'context_menu': radio_context_menu(),
+        'replace_context_menu': True,
+        'thumbnail': radio['image'],
+        'is_playable': True,
+        'path': plugin.url_for(
+            endpoint='play_radio',
+            radio_id=radio['id'],
+        )
+    } for i, radio in enumerate(radios)]
+    return items
+
+
+def format_playlist_tracks(playlist, tracks):
     items = [{
         'label': track['name'],
         'info': {
@@ -332,17 +337,10 @@ def show_tracks_in_playlist(playlist_id):
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
+    return items
 
-    return add_items_paginated(items)
 
-
-@plugin.route('/tracks/similar/<track_id>/')
-def show_similar_tracks(track_id):
-    plugin.set_content('songs')
-
-    page = int(args_get('page', 1))
-    tracks = api.get_similar_tracks(track_id=track_id, page=page)
-
+def format_similar_tracks(tracks):
     items = [{
         'label': '%s - %s (%s)' % (
             track['artist_name'],
@@ -370,30 +368,10 @@ def show_similar_tracks(track_id):
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
-
-    return add_items_paginated(items)
-
-
-@plugin.route('/play/track/<track_id>')
-def play_song(track_id):
-    stream_url = api.get_track_url(track_id)
-    return plugin.set_resolved_url(stream_url)
+    return items
 
 
-@plugin.route('/play/radio/<radio_id>')
-def play_radio(radio_id):
-    stream_url = api.get_radio_url(radio_id)
-    return plugin.set_resolved_url(stream_url)
-
-
-@plugin.route('/settings')
-def open_settings():
-    plugin.open_settings()
-
-
-@plugin.route('/sort_methods/<entity>/')
-def show_sort_methods(entity):
-    sort_methods = api.get_sort_methods(entity)
+def format_sort_methods(sort_methods, entity):
     items = [{
         'label': _('sort_method_%s' % sort_method),
         'info': {
@@ -407,7 +385,7 @@ def show_sort_methods(entity):
             **dict(plugin.request.view_params, sort_method=sort_method)
         )
     } for i, sort_method in enumerate(sort_methods)]
-    return plugin.finish(items, update_listing=True)
+    return items
 
 
 def get_comment(musicinfo):
@@ -442,23 +420,22 @@ def sort_method_switcher_item(entity):
     }
 
 
-def add_items_paginated(items):
-    page = int(args_get('page', 1))
-    is_update = 'is_update' in plugin.request.args
-    has_next_page = len(items) >= api.current_limit
-    has_previous_page = page > 1
+def pagination_items(items_len):
+    current_page = int(args_get('page', 1))
+    has_next_page = items_len >= api.current_limit
+    has_previous_page = current_page > 1
     original_params = plugin.request.view_params
     extra_params = {}
     if 'sort_method' in plugin.request.args:
         extra_params['sort_method'] = args_get('sort_method')
-
+    items = []
     if has_next_page:
-        next_page = int(page) + 1
+        next_page = int(current_page) + 1
         extra_params['page'] = next_page
         items.append({
             'label': '>> %s %d >>' % (_('page'), next_page),
             'info': {
-                'count': len(items) + 2,
+                'count': items_len + 2,
             },
             'path': plugin.url_for(
                 endpoint=plugin.request.view,
@@ -466,9 +443,8 @@ def add_items_paginated(items):
                 **dict(original_params, **extra_params)
             )
         })
-
     if has_previous_page:
-        previous_page = int(page) - 1
+        previous_page = int(current_page) - 1
         extra_params['page'] = previous_page
         items.append({
             'label': '<< %s %d <<' % (_('page'), previous_page),
@@ -481,7 +457,11 @@ def add_items_paginated(items):
                 **dict(original_params, **extra_params)
             )
         })
+    return items
 
+
+def add_items(items):
+    is_update = 'is_update' in plugin.request.args
     finish_kwargs = {
         'update_listing': is_update,
         'sort_methods': ('playlist_order', )
