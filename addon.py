@@ -85,9 +85,38 @@ def show_root():
     return plugin.finish(items)
 
 
-@plugin.route('/albums/<artist_id>/', name='show_albums_by_artist')
 @plugin.route('/albums/')
-def show_albums(artist_id=None):
+def show_albums():
+    plugin.set_content('albums')
+
+    page = int(args_get('page', 1))
+    albums = api.get_albums(page=page)
+
+    items = [{
+        'label': '%s - %s' % (album['artist_name'], album['name']),
+        'info': {
+            'count': i,
+            'artist': album['artist_name'],
+            'album': album['name'],
+            'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
+        },
+        'context_menu': album_context_menu(
+            artist_id=album['artist_id'],
+            album_id=album['id'],
+        ),
+        'replace_context_menu': True,
+        'thumbnail': album['image'],
+        'path': plugin.url_for(
+            endpoint='show_tracks_in_album',
+            album_id=album['id']
+        )
+    } for i, album in enumerate(albums)]
+
+    return add_items_paginated(items)
+
+
+@plugin.route('/albums/<artist_id>/')
+def show_albums_by_artist(artist_id):
     plugin.set_content('albums')
 
     page = int(args_get('page', 1))
