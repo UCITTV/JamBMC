@@ -259,22 +259,24 @@ def add_items_paginated(items):
     has_previous_page = page > 1
 
     if has_next_page:
+        next_page = int(page) + 1
         items.append({
-            'label': '>> %s >>' % _('next'),
+            'label': '>> %s %d >>' % (_('page'), next_page),
             'path': plugin.url_for(
                 endpoint=plugin.request.view,
                 is_update='true',
-                **dict(plugin.request.view_params, page=int(page) + 1)
+                **dict(plugin.request.view_params, page=next_page)
             )
         })
 
     if has_previous_page:
+        previous_page = int(page) - 1
         items.insert(0, {
-            'label': '<< %s <<' % _('previous'),
+            'label': '<< %s %d <<' % (_('page'), previous_page),
             'path': plugin.url_for(
                 endpoint=plugin.request.view,
                 is_update='true',
-                **dict(plugin.request.view_params, page=int(page) - 1)
+                **dict(plugin.request.view_params, page=previous_page)
             )
         })
 
