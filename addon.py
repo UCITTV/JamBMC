@@ -79,6 +79,8 @@ def show_root():
          'path': plugin.url_for(endpoint='show_artists')},
         {'label': _('show_radios'),
          'path': plugin.url_for(endpoint='show_radios')},
+        {'label': _('show_playlists'),
+         'path': plugin.url_for(endpoint='show_playlists')},
     ]
     return plugin.finish(items)
 
@@ -97,7 +99,7 @@ def show_albums(artist_id=None):
             'count': i,
             'artist': album['artist_name'],
             'album': album['name'],
-            'year': int(album.get('releasedate', '0.0.0').split('-')[0]),
+            'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
         },
         'context_menu': album_context_menu(
             artist_id=album['artist_id'],
@@ -110,6 +112,32 @@ def show_albums(artist_id=None):
             album_id=album['id']
         )
     } for i, album in enumerate(albums)]
+
+    return add_items_paginated(items)
+
+
+@plugin.route('/playlists/')
+def show_playlists():
+    plugin.set_content('music')
+
+    page = int(args_get('page', 1))
+    playlists = api.get_playlists(page=page)
+
+    items = [{
+        'label': '%s (%s)' % (playlist['name'], playlist['user_name']),
+        'info': {
+            'count': i,
+            'artist': playlist['user_name'],
+            'album': playlist['name'],
+            'year': int(playlist.get('creationdate', '0-0-0').split('-')[0]),
+        },
+        'context_menu': playlist_context_menu(),
+        'replace_context_menu': True,
+        'path': plugin.url_for(
+            endpoint='show_tracks_in_playlist',
+            playlist_id=playlist['id']
+        )
+    } for i, playlist in enumerate(playlists)]
 
     return add_items_paginated(items)
 
@@ -178,7 +206,7 @@ def show_tracks_in_album(album_id):
             'duration': track['duration'],
             'artist': album['artist_name'],
             'album': album['name'],
-            'year': int(album.get('releasedate', '0.0.0').split('-')[0]),
+            'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
         },
         'context_menu': track_context_menu(
             artist_id=album['artist_id'],
@@ -188,6 +216,36 @@ def show_tracks_in_album(album_id):
         'replace_context_menu': True,
         'is_playable': True,
         'thumbnail': album['image'],
+        'path': plugin.url_for(
+            endpoint='play_song',
+            track_id=track['id']
+        )
+    } for i, track in enumerate(tracks)]
+
+    return add_items_paginated(items)
+
+
+@plugin.route('/tracks/playlist/<playlist_id>/')
+def show_tracks_in_playlist(playlist_id):
+    plugin.set_content('songs')
+
+    playlist, tracks = api.get_playlist_tracks(playlist_id=playlist_id)
+
+    items = [{
+        'label': track['name'],
+        'info': {
+            'count': i,
+            'tracknumber': int(track['position']),
+            'duration': track['duration'],
+            'playlist': playlist['name'],
+        },
+        'context_menu': track_context_menu(
+            artist_id=track['artist_id'],
+            track_id=track['id'],
+            album_id=track['album_id'],
+        ),
+        'replace_context_menu': True,
+        'is_playable': True,
         'path': plugin.url_for(
             endpoint='play_song',
             track_id=track['id']
@@ -216,7 +274,7 @@ def show_similar_tracks(track_id):
             'duration': track['duration'],
             'artist': track['artist_name'],
             'track': track['name'],
-            'year': int(track.get('releasedate', '0.0.0').split('-')[0]),
+            'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
         },
         'context_menu': track_context_menu(
             artist_id=track['artist_id'],
@@ -289,6 +347,13 @@ def add_items_paginated(items):
 
 
 def radio_context_menu():
+    return [
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
+
+
+def playlist_context_menu():
     return [
         (_('addon_settings'),
          _run(endpoint='open_settings')),

@@ -72,6 +72,15 @@ class JamendoApi():
         albums = self._api_call(path, params).get('results', [])
         return albums
 
+    def get_playlists(self, page=1):
+        path = 'playlists'
+        params = {
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1)
+        }
+        playlists = self._api_call(path, params).get('results', [])
+        return playlists
+
     def get_artists(self, page=1):
         path = 'artists'
         params = {
@@ -99,6 +108,14 @@ class JamendoApi():
         album = albums[0] if albums else {}
         tracks = album.get('tracks', [])
         return album, tracks
+
+    def get_playlist_tracks(self, playlist_id):
+        path = 'playlists/tracks'
+        params = {'id': [playlist_id]}
+        playlists = self._api_call(path, params).get('results', [])
+        playlist = playlists[0] if playlists else {}
+        tracks = playlist.get('tracks', [])
+        return playlist, tracks
 
     def get_similar_tracks(self, track_id, page=1):
         path = 'tracks/similar'
