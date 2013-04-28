@@ -138,13 +138,15 @@ def show_albums():
 
 @plugin.route('/albums/search/')
 def search_albums():
-    query = args_get('query') or plugin.keyboard(heading=_('search_heading_album'))
-    if not query:
-        return
-    plugin.set_content('albums')
-    albums = api.get_albums(search_terms=query)
-    items = format_albums(albums)
-    return add_items(items)
+    query = args_get(
+        'query',
+        plugin.keyboard(heading=_('search_heading_album'))
+    )
+    if query:
+        plugin.set_content('albums')
+        albums = api.get_albums(search_terms=query)
+        items = format_albums(albums)
+        return add_items(items)
 
 
 @plugin.route('/albums/<artist_id>/')
@@ -181,13 +183,15 @@ def show_artists():
 
 @plugin.route('/artists/search/')
 def search_artists():
-    query = args_get('query') or plugin.keyboard(heading=_('search_heading_artist'))
-    if not query:
-        return
-    plugin.set_content('artists')
-    artists = api.get_artists(search_terms=query)
-    items = format_artists(artists)
-    return add_items(items)
+    query = args_get(
+        'query',
+        plugin.keyboard(heading=_('search_heading_artist'))
+    )
+    if query:
+        plugin.set_content('artists')
+        artists = api.get_artists(search_terms=query)
+        items = format_artists(artists)
+        return add_items(items)
 
 
 @plugin.route('/radios/')
@@ -214,13 +218,15 @@ def show_tracks():
 
 @plugin.route('/tracks/search/')
 def search_tracks():
-    query = args_get('query') or plugin.keyboard(heading=_('search_heading_tracks'))
-    if not query:
-        return
-    plugin.set_content('songs')
-    tracks = api.search_tracks(search_terms=query)
-    items = format_tracks(tracks)
-    return add_items(items)
+    query = args_get(
+        'query',
+        plugin.keyboard(heading=_('search_heading_tracks'))
+    )
+    if query:
+        plugin.set_content('songs')
+        tracks = api.search_tracks(search_terms=query)
+        items = format_tracks(tracks)
+        return add_items(items)
 
 
 @plugin.route('/tracks/album/<album_id>/')
