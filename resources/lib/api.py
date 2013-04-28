@@ -21,7 +21,7 @@ import json
 import requests
 
 
-API_URL = 'api.jamendo.com/v3.0/'
+API_URL = '%(scheme)s://api.jamendo.com/v3.0/'
 USER_AGENT = 'XBMC Jamendo API'
 
 SORT_METHODS = {
@@ -65,23 +65,8 @@ class ConnectionError(Exception):
 
 class JamendoApi():
 
-    def __init__(self, client_id, **properties):
+    def __init__(self, client_id, use_https=True, limit=100, audioformat='ogg'):
         self._client_id = client_id
-        self._reset_properties()
-        if properties:
-            self.set_properties(**properties)
-
-    def _reset_properties(self):
-        self._username = None
-        self._password = None
-        self._use_https = False
-        self._audioformat = 'ogg'  # fixme
-        self._limit = 100
-
-    def set_properties(self, username=None, password=None, use_https=True,
-                       limit=100, audioformat='ogg'):
-        self._username = username
-        self._password = password
         self._use_https = use_https
         self._audioformat = audioformat
         self._limit = limit
@@ -206,7 +191,8 @@ class JamendoApi():
             url,
             headers=headers,
             params=params,
-            data=data
+            data=data,
+            verify=False  # XBMC's requests SSL certificates are too old
         )
         self.log(u'_api_call using URL: %s' % request.url)
         json_data = request.json()
@@ -228,7 +214,7 @@ class JamendoApi():
     @property
     def _api_url(self):
         scheme = 'https' if self._use_https else 'http'
-        return '%s://%s' % (scheme, API_URL)
+        return API_URL % {'scheme': scheme}
 
     @staticmethod
     def get_sort_methods(entity):
