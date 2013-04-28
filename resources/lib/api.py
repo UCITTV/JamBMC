@@ -55,13 +55,15 @@ class ConnectionError(Exception):
 
 class JamendoApi():
 
-    def __init__(self, client_id, use_https=True, limit=100, audioformat='ogg'):
+    def __init__(self, client_id, use_https=True, limit=100,
+                 audioformat='ogg'):
         self._client_id = client_id
         self._use_https = use_https
         self._audioformat = audioformat
         self._limit = limit
 
-    def get_albums(self, page=1, artist_id=None, sort_method=None, search_terms=None):
+    def get_albums(self, page=1, artist_id=None, sort_method=None,
+                   search_terms=None):
         path = 'albums'
         params = {
             'imagesize': 400,
@@ -193,7 +195,7 @@ class JamendoApi():
         )
         return request.url
 
-    def _api_call(self, path, params={}, post={}, auth=False):
+    def _api_call(self, path, params={}, post={}):
         headers = {
             'content-type': 'application/json',
             'user-agent': USER_AGENT
@@ -241,13 +243,3 @@ class JamendoApi():
 
     def log(self, message):
         print u'[%s]: %s' % (self.__class__.__name__, repr(message))
-
-
-def test():
-    api = JamendoApi(client_id='b6747d04')
-    #print api.get_albums()
-    print api.get_album_tracks(174)
-
-
-if __name__ == '__main__':
-    test()
