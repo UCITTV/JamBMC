@@ -128,7 +128,7 @@ def browse_root():
 def show_albums():
     plugin.set_content('albums')
     page = int(args_get('page', 1))
-    sort_method = args_get('sort_method')
+    sort_method = args_get('sort_method', 'popularity_month')
     albums = api.get_albums(page=page, sort_method=sort_method)
     items = format_albums(albums)
     items.append(sort_method_switcher_item('albums'))
@@ -173,7 +173,7 @@ def show_playlists():
 def show_artists():
     plugin.set_content('artists')
     page = int(args_get('page', 1))
-    sort_method = args_get('sort_method')
+    sort_method = args_get('sort_method', 'popularity_month')
     artists = api.get_artists(page=page, sort_method=sort_method)
     items = format_artists(artists)
     items.append(sort_method_switcher_item('artists'))
@@ -208,7 +208,7 @@ def show_radios():
 def show_tracks():
     plugin.set_content('songs')
     page = int(args_get('page', 1))
-    sort_method = args_get('sort_method', 'buzzrate')
+    sort_method = args_get('sort_method', 'popularity_month')
     tracks = api.get_tracks(page=page, sort_method=sort_method)
     items = format_tracks(tracks)
     items.append(sort_method_switcher_item('tracks'))
