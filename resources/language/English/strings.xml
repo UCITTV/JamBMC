@@ -29,7 +29,12 @@
     <string id="30051">Instruments</string>
     <string id="30052">Tags</string>
     <!-- Error dialogs -->
-    <string id="30060">Network Error</string>
+    <string id="30060">Connection Error</string>
+    <string id="30061">API Error</string>
+    <string id="30062">API returned following error:</string>
+    <string id="30063">Please try again later.</string>
+    <string id="30064">Please check your network or</string>
+    <string id="30065">try again later.</string>
     <!-- Notifications -->
     <!-- Settings -->
     <string id="30300">Limit (Items per Page)</string>

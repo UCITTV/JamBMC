@@ -18,7 +18,7 @@
 #
 
 from xbmcswift2 import Plugin, xbmc, xbmcgui, NotFoundException
-from resources.lib.api import JamendoApi
+from resources.lib.api import JamendoApi, ApiError, ConnectionError
 
 
 STRINGS = {
@@ -51,7 +51,12 @@ STRINGS = {
     'instruments': 30051,
     'vartags': 30052,
     # Error dialogs
-    'network_error': 30060,
+    'connection_error': 30060,
+    'api_error': 30061,
+    'api_returned': 30062,
+    'try_again_later': 30063,
+    'check_network_or': 30064,
+    'try_again_later': 30065,
     # Notifications
 }
 
@@ -81,6 +86,7 @@ api = JamendoApi(
     client_id='de0f381a',
     limit=plugin.get_setting('limit', int)
 )
+dialog = xbmcgui.Dialog()
 
 
 @plugin.route('/')
@@ -649,4 +655,19 @@ def _(string_id):
         return string_id
 
 if __name__ == '__main__':
-    plugin.run()
+    try:
+        plugin.run()
+    except ApiError, message:
+        dialog.ok(
+            _('api_error'),
+            _('api_returned'),
+            unicode(message),
+            _('try_again_later')
+        )
+    except ConnectionError:
+        dialog.ok(
+            _('connection_error'),
+            '',
+            _('check_network_or'),
+            _('try_again_later')
+        )
