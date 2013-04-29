@@ -422,7 +422,7 @@ def format_playlist_tracks(playlist, tracks):
             'count': i + 2,
             'tracknumber': int(track['position']),
             'duration': track['duration'],
-            'playlist': playlist['name'],
+            'title': track['name'],
         },
         'context_menu': track_context_menu(
             artist_id=track['artist_id'],
