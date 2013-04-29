@@ -34,6 +34,7 @@ STRINGS = {
     'search_albums': 30008,
     'search_artists': 30009,
     'search_playlists': 30010,
+    'show_history': 30011,
     # Misc strings
     'page': 30020,
     # Context menu
@@ -100,6 +101,8 @@ def root_menu():
          'path': plugin.url_for(endpoint='search_root')},
         {'label': _('show_radios'),
          'path': plugin.url_for(endpoint='show_radios')},
+        {'label': _('show_history'),
+         'path': plugin.url_for(endpoint='show_history')},
     ]
     return plugin.finish(items)
 
@@ -280,6 +283,17 @@ def show_similar_tracks(track_id):
     return add_items(items)
 
 
+@plugin.route('/history/')
+def show_history():
+    plugin.set_content('songs')
+    history = plugin.get_storage('history')
+    if history.get('items'):
+        song_ids = '+'.join([i for i in history['items']])
+        tracks = api.get_tracks(filter_dict={'id': song_ids})
+        items = format_tracks(tracks)
+        return add_items(items)
+
+
 @plugin.route('/sort_methods/<entity>/')
 def show_sort_methods(entity):
     sort_methods = api.get_sort_methods(entity)
@@ -289,6 +303,13 @@ def show_sort_methods(entity):
 
 @plugin.route('/play/track/<track_id>')
 def play_song(track_id):
+    history = plugin.get_storage('history')
+    if not 'items' in history:
+        history['items'] = []
+    history['items'].append(track_id)
+    if len(history['items']) > 25:
+        history['items'].pop(0)
+    history.sync()
     stream_url = api.get_track_url(track_id)
     return plugin.set_resolved_url(stream_url)
 
