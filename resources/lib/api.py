@@ -79,12 +79,14 @@ class JamendoApi():
         albums = self._api_call(path, params)
         return albums
 
-    def get_playlists(self, page=1):
+    def get_playlists(self, page=1, search_terms=None):
         path = 'playlists'
         params = {
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1)
         }
+        if search_terms:
+            params['namesearch'] = search_terms
         playlists = self._api_call(path, params)
         return playlists
 

@@ -33,6 +33,7 @@ STRINGS = {
     'search_tracks': 30007,
     'search_albums': 30008,
     'search_artists': 30009,
+    'search_playlists': 30010,
     # Misc strings
     'page': 30020,
     # Context menu
@@ -46,6 +47,7 @@ STRINGS = {
     'search_heading_album': 30040,
     'search_heading_artist': 30041,
     'search_heading_tracks': 30042,
+    'search_heading_playlist': 30043,
     # Info dialog
     'language': 30050,
     'instruments': 30051,
@@ -111,6 +113,8 @@ def search_root():
          'path': plugin.url_for(endpoint='search_albums')},
         {'label': _('search_artists'),
          'path': plugin.url_for(endpoint='search_artists')},
+        {'label': _('search_playlists'),
+         'path': plugin.url_for(endpoint='search_playlists')},
     ]
     return plugin.finish(items)
 
@@ -173,6 +177,19 @@ def show_playlists():
     items = format_playlists(playlists)
     items.extend(pagination_items(len(items)))
     return add_items(items)
+
+
+@plugin.route('/playlists/search/')
+def search_playlists():
+    query = args_get(
+        'query',
+        plugin.keyboard(heading=_('search_heading_playlist'))
+    )
+    if query:
+        plugin.set_content('music')
+        playlists = api.get_playlists(search_terms=query)
+        items = format_playlists(playlists)
+        return add_items(items)
 
 
 @plugin.route('/artists/')

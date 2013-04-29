@@ -11,6 +11,7 @@
     <string id="30007">Search for Tracks</string>
     <string id="30008">Search for Albums</string>
     <string id="30009">Search for Artists</string>
+    <string id="30010">Search for Playlists</string>
     <!-- Misc strings -->
     <string id="30020">Page</string>
     <!-- Context menu -->
@@ -24,6 +25,7 @@
     <string id="30040">Enter Album title</string>
     <string id="30041">Enter Artist name</string>
     <string id="30042">Enter Track search terms</string>
+    <string id="30043">Enter Playlist title</string>
     <!-- Info dialog -->
     <string id="30050">Language</string>
     <string id="30051">Instruments</string>
