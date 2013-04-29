@@ -566,7 +566,8 @@ def add_items(items):
         'sort_methods': ('playlist_order', )
     }
     if plugin.get_setting('force_viewmode', bool):
-        finish_kwargs['view_mode'] = 'thumbnail'
+        if any(i.get('thumbnail') for i in items):
+            finish_kwargs['view_mode'] = 'thumbnail'
     return plugin.finish(items, **finish_kwargs)
 
 
