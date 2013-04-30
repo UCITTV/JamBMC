@@ -67,7 +67,8 @@ STRINGS = {
     'try_again_later': 30065,
     # Notifications
     'download_suceeded': 30070,
-    'history_empty': 30071
+    'history_empty': 30071,
+    'downloads_empty': 30072,
 }
 
 
@@ -110,6 +111,8 @@ def root_menu():
          'path': plugin.url_for(endpoint='show_radios')},
         {'label': _('show_history'),
          'path': plugin.url_for(endpoint='show_history')},
+        {'label': _('show_downloads'),
+         'path': plugin.url_for(endpoint='show_downloads')},
     ]
     return plugin.finish(items)
 
@@ -300,6 +303,17 @@ def show_history():
         items = format_tracks(tracks)
         return add_items(items)
     plugin.notify(_('history_empty'))
+
+
+@plugin.route('/downloads/tracks/')
+def show_downloads():
+    plugin.set_content('songs')
+    downloads = plugin.get_storage('downloaded_tracks')
+    if downloads.items():
+        tracks = [t['data'] for t in downloads.itervalues()]
+        items = format_tracks(tracks)
+        return add_items(items)
+    plugin.notify(_('downloads_empty'))
 
 
 @plugin.route('/sort_methods/<entity>/')

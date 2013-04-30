@@ -44,6 +44,7 @@
     <!-- Notifications -->
     <string id="30070">Download succeeded</string>
     <string id="30071">No item in History</string>
+    <string id="30072">No items downloaded</string>
     <!-- Download -->
     <string id="30080">Jamendo Downloader</string>
     <string id="30081">Preparing download...</string>
