@@ -3,4 +3,7 @@
     <setting id="limit" type="labelenum" label="30300" values="25|50|75|100" default="100"/>
     <setting id="force_viewmode" type="bool" label="30301" default="true"/>
     <setting id="use_https" type="bool" label="30302" default="true"/>
+    <setting id="tracks_download_path" type="folder" label="30303" source="auto" option="writeable"/>
+    <setting id="show_track_download_progress" type="bool" label="30305" default="true"/>
+    <setting id="download_track_cover" type="bool" label="30304" default="true"/>
 </settings>

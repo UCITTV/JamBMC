@@ -22,11 +22,14 @@
     <string id="30033">Show Albums by this Artist</string>
     <string id="30034">Show similar Tracks</string>
     <string id="30035">Add-on Settings</string>
+    <string id="30036">Download this Track</string>
     <!-- Dialogs -->
     <string id="30040">Enter Album title</string>
     <string id="30041">Enter Artist name</string>
     <string id="30042">Enter Track search terms</string>
     <string id="30043">Enter Playlist title</string>
+    <string id="30044">No Download Path</string>
+    <string id="30045">Do you want to set it now?</string>
     <!-- Info dialog -->
     <string id="30050">Language</string>
     <string id="30051">Instruments</string>
@@ -39,8 +42,17 @@
     <string id="30064">Please check your network or</string>
     <string id="30065">try again later.</string>
     <!-- Notifications -->
+    <!-- Download -->
+    <string id="30080">Jamendo Downloader</string>
+    <string id="30081">Preparing download...</string>
+    <string id="30082">Downloading to: %s</string>
+    <string id="30083">Item %s of %s Items</string>
+    <string id="30084">Current File: %s</string>
     <!-- Settings -->
     <string id="30300">Limit (Items per Page)</string>
     <string id="30301">Force Thumbnail-View</string>
     <string id="30302">Use HTTPS</string>
+    <string id="30303">Download Path (Songs)</string>
+    <string id="30304">Download Cover (Songs)</string>
+    <string id="30305">Show Progress Dialog while downloading Track</string>
 </strings>

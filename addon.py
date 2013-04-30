@@ -19,6 +19,7 @@
 
 from xbmcswift2 import Plugin, xbmc, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi, ApiError, ConnectionError
+from resources.lib.downloader import JamendoDownloader
 
 
 STRINGS = {
@@ -44,11 +45,14 @@ STRINGS = {
     'show_albums_by_this_artist': 30033,
     'show_similar_tracks': 30034,
     'addon_settings': 30035,
+    'download_track': 30036,
     # Dialogs
     'search_heading_album': 30040,
     'search_heading_artist': 30041,
     'search_heading_tracks': 30042,
     'search_heading_playlist': 30043,
+    'no_download_path': 30044,
+    'want_set_now': 30045,
     # Info dialog
     'language': 30050,
     'instruments': 30051,
@@ -312,6 +316,43 @@ def play_song(track_id):
     history.sync()
     stream_url = api.get_track_url(track_id)
     return plugin.set_resolved_url(stream_url)
+
+
+@plugin.route('/download/track/<track_id>')
+def download_track(track_id):
+    download_path = plugin.get_setting('tracks_download_path', str)
+    while not download_path:
+        try_again = xbmcgui.Dialog().yesno(
+            _('no_download_path'),
+            _('want_set_now')
+        )
+        if not try_again:
+            return
+        plugin.open_settings()
+        download_path = plugin.get_setting('tracks_download_path', str)
+    track = api.get_tracks(filter_dict={'id': track_id})[0]
+    track_url = api.get_track_url(track_id)
+    track_filename = '%(artist)s - %(title)s (%(album)s) [%(year)s].ogg' % {
+        'artist': track['artist_name'],
+        'title': track['name'],
+        'album': track['album_name'],
+        'year': track.get('releasedate', '0-0-0').split('-')[0],
+    }
+    items = [(track_url, track_filename)]
+    if plugin.get_setting('download_track_cover', bool):
+        cover_url = track['album_image']
+        cover_filename = '%s.tbn' % track_filename.rsplit('.', 1)[0]
+        items.append((cover_url, cover_filename))
+    show_progress = plugin.get_setting('show_track_download_progress', bool)
+    downloader = JamendoDownloader(download_path, show_progress)
+    downloaded_items = downloader.download(items)
+    downloaded_tracks = plugin.get_storage('downloaded_tracks')
+    downloaded_tracks[track_id] = {
+        'file': downloaded_items[0],
+        'data': track
+    }
+    downloaded_tracks.sync()
+    plugin.notify(msg=_('download_suceeded'))
 
 
 @plugin.route('/play/radio/<radio_id>')
@@ -642,6 +683,9 @@ def track_context_menu(artist_id, track_id, album_id):
     return [
         (_('song_info'),
          _action('info')),
+        (_('download_track'),
+         _run(endpoint='download_track',
+              track_id=track_id)),
         (_('show_albums_by_this_artist'),
          _view(endpoint='show_albums_by_artist',
                artist_id=artist_id)),
