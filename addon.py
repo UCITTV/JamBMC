@@ -17,7 +17,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from xbmcswift2 import Plugin, xbmc, xbmcgui, NotFoundException
+from xbmcswift2 import Plugin, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi, ApiError, ConnectionError
 from resources.lib.downloader import JamendoDownloader
 
