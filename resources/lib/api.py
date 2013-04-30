@@ -226,7 +226,7 @@ class JamendoApi():
             else:
                 raise ApiError(json_data['headers']['error_message'])
         if json_data.get('headers', {}).get('warnings'):
-            log('API-Warning: %s' % json_data['headers']['warnings'])
+            self.log('API-Warning: %s' % json_data['headers']['warnings'])
         self.log(u'_api_call got %d bytes response' % len(request.text))
         return json_data.get('results', [])
 
