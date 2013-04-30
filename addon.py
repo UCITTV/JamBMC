@@ -17,6 +17,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import xbmcvfs  # FIXME: Import form xbmcswift if fixed upstream
 from xbmcswift2 import Plugin, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi, ApiError, ConnectionError
 from resources.lib.downloader import JamendoDownloader
@@ -317,8 +318,15 @@ def play_track(track_id):
     if len(history['items']) > 25:
         history['items'].pop(0)
     history.sync()
-    stream_url = api.get_track_url(track_id)
-    return plugin.set_resolved_url(stream_url)
+    downloaded_tracks = plugin.get_storage('downloaded_tracks')
+    play_url = None
+    if track_id in downloaded_tracks:
+        if xbmcvfs.exists(downloaded_tracks[track_id]['file']):
+            log('Track is already downloaded, playing local')
+            play_url = downloaded_tracks[track_id]['file']
+    if not play_url:
+        play_url = api.get_track_url(track_id)
+    return plugin.set_resolved_url(play_url)
 
 
 @plugin.route('/download/track/<track_id>')
