@@ -55,6 +55,7 @@ STRINGS = {
     'search_heading_playlist': 30043,
     'no_download_path': 30044,
     'want_set_now': 30045,
+    'choose_download_folder': 30046,
     # Info dialog
     'language': 30050,
     'instruments': 30051,
@@ -743,8 +744,12 @@ def get_download_path(setting_name):
         )
         if not try_again:
             return
-        plugin.open_settings()
-        download_path = plugin.get_setting(setting_name, str)
+        download_path = xbmcgui.Dialog().browse(
+            3,  # ShowAndGetWriteableDirectory
+            _('choose_download_folder'),
+            'music',
+        )
+        plugin.set_setting(setting_name, download_path)
     return download_path
 
 
