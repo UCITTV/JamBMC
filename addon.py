@@ -37,6 +37,7 @@ STRINGS = {
     'search_artists': 30009,
     'search_playlists': 30010,
     'show_history': 30011,
+    'show_downloads': 30012,
     # Misc strings
     'page': 30020,
     # Context menu
@@ -97,7 +98,6 @@ api = JamendoApi(
     client_id='de0f381a',
     limit=plugin.get_setting('limit', int)
 )
-dialog = xbmcgui.Dialog()
 
 
 @plugin.route('/')
@@ -766,14 +766,14 @@ if __name__ == '__main__':
     try:
         plugin.run()
     except ApiError, message:
-        dialog.ok(
+        xbmcgui.Dialog().ok(
             _('api_error'),
             _('api_returned'),
             unicode(message),
             _('try_again_later')
         )
     except ConnectionError:
-        dialog.ok(
+        xbmcgui.Dialog().ok(
             _('connection_error'),
             '',
             _('check_network_or'),
