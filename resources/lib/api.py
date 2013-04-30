@@ -162,15 +162,15 @@ class JamendoApi():
         }
         return self.get_tracks(page=page, filter_dict=filter_dict)
 
-    def get_track_url(self, track_id):
+    def get_track_url(self, track_id, do_request=True):
         path = 'tracks/file'
         params = {
             'audioformat': self._audioformat,
             'id': track_id
         }
-        target_url = self._api_redirect(path, params)
-        self.log('get_track_url target_url: %s' % target_url)
-        return target_url
+        track_url = self._get_api_url(path, params, do_request)
+        self.log('get_track_url track_url: %s' % track_url)
+        return track_url
 
     def get_radio_url(self, radio_id):
         path = 'radios/stream'
@@ -181,7 +181,7 @@ class JamendoApi():
         radio = radios[0] if radios else {}
         return radio.get('stream')
 
-    def _api_redirect(self, path, params={}):
+    def _get_api_url(self, path, params={}, do_request=True):
         headers = {
             'user-agent': USER_AGENT
         }
@@ -189,12 +189,19 @@ class JamendoApi():
             'client_id': self._client_id,
         })
         url = self._api_url + path
-        request = requests.get(
-            url,
-            headers=headers,
-            params=params,
-            verify=False
-        )
+        if do_request:
+            request = requests.get(
+                url,
+                headers=headers,
+                params=params,
+                verify=False
+            )
+        else:
+            request = requests.Request(
+                'GET',
+                url,
+                params=params
+            ).prepare()
         return request.url
 
     def _api_call(self, path, params={}, post={}):

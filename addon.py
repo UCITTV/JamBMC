@@ -351,16 +351,17 @@ def download_track(track_id):
         return
     track = api.get_tracks(filter_dict={'id': track_id})[0]
     track_url = api.get_track_url(track_id)
-    track_filename = '%(artist)s - %(title)s (%(album)s) [%(year)s].ogg' % {
+    filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
         'artist': track['artist_name'],
         'title': track['name'],
         'album': track['album_name'],
         'year': track.get('releasedate', '0-0-0').split('-')[0],
     }
+    track_filename = '%s.ogg' % filename
     items = [(track_url, track_filename)]
     if plugin.get_setting('download_track_cover', bool):
         cover_url = track['album_image']
-        cover_filename = '%s.tbn' % track_filename.rsplit('.', 1)[0]
+        cover_filename = '%s.tbn' % filename
         items.append((cover_url, cover_filename))
     show_progress = plugin.get_setting('show_track_download_progress', bool)
     downloader = JamendoDownloader(download_path, show_progress)
