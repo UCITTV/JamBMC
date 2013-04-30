@@ -345,16 +345,9 @@ def play_track(track_id):
 
 @plugin.route('/download/track/<track_id>')
 def download_track(track_id):
-    download_path = plugin.get_setting('tracks_download_path', str)
-    while not download_path:
-        try_again = xbmcgui.Dialog().yesno(
-            _('no_download_path'),
-            _('want_set_now')
-        )
-        if not try_again:
-            return
-        plugin.open_settings()
-        download_path = plugin.get_setting('tracks_download_path', str)
+    download_path = get_download_path('tracks_download_path')
+    if not download_path:
+        return
     track = api.get_tracks(filter_dict={'id': track_id})[0]
     track_url = api.get_track_url(track_id)
     track_filename = '%(artist)s - %(title)s (%(album)s) [%(year)s].ogg' % {
@@ -739,6 +732,20 @@ def _action(arg):
 
 def args_get(arg_name, default=None):
     return plugin.request.args.get(arg_name, [default])[0]
+
+
+def get_download_path(setting_name):
+    download_path = plugin.get_setting(setting_name, str)
+    while not download_path:
+        try_again = xbmcgui.Dialog().yesno(
+            _('no_download_path'),
+            _('want_set_now')
+        )
+        if not try_again:
+            return
+        plugin.open_settings()
+        download_path = plugin.get_setting(setting_name, str)
+    return download_path
 
 
 def image_helper(url):
