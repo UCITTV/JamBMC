@@ -42,6 +42,8 @@
     <string id="30064">Please check your network or</string>
     <string id="30065">try again later.</string>
     <!-- Notifications -->
+    <string id="30070">Download succeeded</string>
+    <string id="30071">No item in History</string>
     <!-- Download -->
     <string id="30080">Jamendo Downloader</string>
     <string id="30081">Preparing download...</string>

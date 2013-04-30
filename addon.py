@@ -65,6 +65,8 @@ STRINGS = {
     'check_network_or': 30064,
     'try_again_later': 30065,
     # Notifications
+    'download_suceeded': 30070,
+    'history_empty': 30071
 }
 
 
@@ -296,6 +298,7 @@ def show_history():
         tracks = api.get_tracks(filter_dict={'id': song_ids})
         items = format_tracks(tracks)
         return add_items(items)
+    plugin.notify(_('history_empty'))
 
 
 @plugin.route('/sort_methods/<entity>/')
@@ -734,7 +737,7 @@ def _(string_id):
     if string_id in STRINGS:
         return plugin.get_string(STRINGS[string_id])
     else:
-        #log('String is missing: %s' % string_id)
+        log('String is missing: %s' % string_id)
         return string_id
 
 if __name__ == '__main__':
