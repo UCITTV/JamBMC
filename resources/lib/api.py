@@ -215,7 +215,7 @@ class JamendoApi():
             headers=headers,
             params=params,
             data=data,
-            verify=False  # XBMC's requests SSL certificates are too old
+            verify=False  # XBMCs requests' SSL certificates are too old
         )
         self.log(u'_api_call using URL: %s' % request.url)
         json_data = request.json()
