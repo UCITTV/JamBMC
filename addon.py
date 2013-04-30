@@ -309,7 +309,7 @@ def show_sort_methods(entity):
 
 
 @plugin.route('/play/track/<track_id>')
-def play_song(track_id):
+def play_track(track_id):
     history = plugin.get_storage('history')
     if not 'items' in history:
         history['items'] = []
@@ -395,7 +395,7 @@ def format_tracks(tracks):
         'is_playable': True,
         'thumbnail': track['album_image'],
         'path': plugin.url_for(
-            endpoint='play_song',
+            endpoint='play_track',
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
@@ -497,7 +497,7 @@ def format_playlist_tracks(playlist, tracks):
         'replace_context_menu': True,
         'is_playable': True,
         'path': plugin.url_for(
-            endpoint='play_song',
+            endpoint='play_track',
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
@@ -528,7 +528,7 @@ def format_similar_tracks(tracks):
         'is_playable': True,
         'thumbnail': track['album_image'],
         'path': plugin.url_for(
-            endpoint='play_song',
+            endpoint='play_track',
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
