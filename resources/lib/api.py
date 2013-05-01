@@ -30,13 +30,14 @@ SORT_METHODS = {
         'popularity_week'
     ),
     'artists': (
-        'name', 'id', 'joindate', 'popularity_total', 'popularity_month',
-        'popularity_week'
+        'name', 'joindate_asc', 'joindate_desc', 'popularity_total',
+        'popularity_month', 'popularity_week'
     ),
     'tracks': (
         'buzzrate', 'downloads_week', 'downloads_month', 'downloads_total',
         'listens_week', 'listens_month', 'listens_total', 'popularity_week',
-        'popularity_month', 'popularity_total', 'releasedate'
+        'popularity_month', 'popularity_total', 'releasedate_asc',
+        'releasedate_desc'
     ),
 }
 
