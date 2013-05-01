@@ -332,10 +332,11 @@ def play_track(track_id):
     history = plugin.get_storage('history')
     if not 'items' in history:
         history['items'] = []
-    history['items'].append(track_id)
-    if len(history['items']) > 25:
-        history['items'].pop(0)
-    history.sync()
+    if not track_id in history['items']:
+        history['items'].append(track_id)
+        if len(history['items']) > 25:
+            history['items'].pop(0)
+        history.sync()
     downloaded_tracks = plugin.get_storage('downloaded_tracks')
     play_url = None
     if track_id in downloaded_tracks:
