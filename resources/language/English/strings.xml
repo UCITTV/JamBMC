@@ -3,12 +3,12 @@
     <!-- Root menu entries -->
     <string id="30000">Browse all Music</string>
     <string id="30001">Search for Music</string>
-    <string id="30002">Browse Tracks</string>
+    <string id="30002">Browse Songs</string>
     <string id="30003">Browse Albums</string>
     <string id="30004">Browse Artists</string>
     <string id="30005">Show Radios</string>
     <string id="30006">Show Playlists</string>
-    <string id="30007">Search for Tracks</string>
+    <string id="30007">Search for Songs</string>
     <string id="30008">Search for Albums</string>
     <string id="30009">Search for Artists</string>
     <string id="30010">Search for Playlists</string>
@@ -20,9 +20,9 @@
     <!-- Context menu -->
     <string id="30030">Show Album info</string>
     <string id="30031">Show song info</string>
-    <string id="30032">Show Tracks in this Album</string>
+    <string id="30032">Show Songs in this Album</string>
     <string id="30033">Show Albums by this Artist</string>
-    <string id="30034">Show similar Tracks</string>
+    <string id="30034">Show similar Songs</string>
     <string id="30035">Add-on Settings</string>
     <string id="30036">Download this Track</string>
     <!-- Dialogs -->
@@ -66,7 +66,7 @@
     <string id="30098">Add/Del to Mixtape</string>
     <string id="3009">Delete Mixtape</string>
     <!-- Settings -->
-    <string id="30300">Limit (Items per Page)</string>
+    <string id="30300">Max. Items per Page</string>
     <string id="30301">Force Thumbnail-View</string>
     <string id="30302">Use HTTPS</string>
     <string id="30303">Download Path (Songs)</string>
