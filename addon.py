@@ -297,10 +297,9 @@ def show_similar_tracks(track_id):
 @plugin.route('/history/')
 def show_history():
     plugin.set_content('songs')
-    history = plugin.get_storage('history')
-    if history.get('items'):
-        track_ids_str = '+'.join([i for i in history['items']])
-        tracks = api.get_tracks(filter_dict={'id': track_ids_str})
+    track_ids = get_tracks_from_history()
+    if track_ids:
+        tracks = api.get_tracks(filter_dict={'id': '+'.join(track_ids)})
         # extra round to get the items in their history order
         tracks_dict = dict((track['id'], track) for track in tracks)
         tracks = reversed([tracks_dict[i] for i in history['items']])
@@ -329,14 +328,7 @@ def show_sort_methods(entity):
 
 @plugin.route('/play/track/<track_id>')
 def play_track(track_id):
-    history = plugin.get_storage('history')
-    if not 'items' in history:
-        history['items'] = []
-    if not track_id in history['items']:
-        history['items'].append(track_id)
-        if len(history['items']) > 25:
-            history['items'].pop(0)
-        history.sync()
+    add_track_to_history(track_id)
     downloaded_tracks = plugin.get_storage('downloaded_tracks')
     play_url = None
     if track_id in downloaded_tracks:
@@ -766,6 +758,22 @@ def image_helper(url):
         addon_id = plugin._addon.getAddonInfo('id')
         icon = 'special://home/addons/%s/icon.png' % addon_id
         return icon
+
+
+def add_track_to_history(track_id):
+    history = plugin.get_storage('history')
+    if not 'items' in history:
+        history['items'] = []
+    if not track_id in history['items']:
+        history['items'].append(track_id)
+        if len(history['items']) > 25:
+            history['items'].pop(0)
+        history.sync()
+
+
+def get_tracks_from_history():
+    history = plugin.get_storage('history')
+    return history.get('items', [])
 
 
 def log(text):
