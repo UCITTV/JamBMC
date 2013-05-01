@@ -299,8 +299,11 @@ def show_history():
     plugin.set_content('songs')
     history = plugin.get_storage('history')
     if history.get('items'):
-        song_ids = '+'.join([i for i in history['items']])
-        tracks = api.get_tracks(filter_dict={'id': song_ids})
+        track_ids_str = '+'.join([i for i in history['items']])
+        tracks = api.get_tracks(filter_dict={'id': track_ids_str})
+        # extra round to get the items in their history order
+        tracks_dict = dict((track['id'], track) for track in tracks)
+        tracks = reversed([tracks_dict[i] for i in history['items']])
         items = format_tracks(tracks)
         return add_items(items)
     plugin.notify(_('history_empty'))
