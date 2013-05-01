@@ -302,7 +302,7 @@ def show_history():
         tracks = api.get_tracks(filter_dict={'id': '+'.join(track_ids)})
         # extra round to get the items in their history order
         tracks_dict = dict((track['id'], track) for track in tracks)
-        tracks = reversed([tracks_dict[i] for i in history['items']])
+        tracks = reversed([tracks_dict[i] for i in track_ids])
         items = format_tracks(tracks)
         return add_items(items)
     plugin.notify(_('history_empty'))
