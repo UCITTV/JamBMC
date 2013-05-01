@@ -38,6 +38,7 @@ STRINGS = {
     'search_playlists': 30010,
     'show_history': 30011,
     'show_downloads': 30012,
+    'show_mixtapes': 30013,
     # Misc strings
     'page': 30020,
     # Context menu
@@ -71,6 +72,18 @@ STRINGS = {
     'download_suceeded': 30070,
     'history_empty': 30071,
     'downloads_empty': 30072,
+    # Mixtapes
+    'mixtape_name': 30090,
+    'delete_mixtape_head': 30091,
+    'are_you_sure': 30092,
+    'add_to_new_mixtape': 30093,
+    'add_to_mixtape_s': 30094,
+    'del_from_mixtape_s': 30095,
+    'select_mixtape': 30096,
+    'add_new_mixtape': 30097,
+    'add_del_track_to_mixtape': 30098,
+    'delete_mixtape': 30099
+
 }
 
 
@@ -114,6 +127,8 @@ def root_menu():
          'path': plugin.url_for(endpoint='show_history')},
         {'label': _('show_downloads'),
          'path': plugin.url_for(endpoint='show_downloads')},
+        {'label': _('show_mixtapes'),
+         'path': plugin.url_for(endpoint='show_mixtapes')},
     ]
     return plugin.finish(items)
 
@@ -317,6 +332,100 @@ def show_downloads():
         items = format_tracks(tracks)
         return add_items(items)
     plugin.notify(_('downloads_empty'))
+
+
+@plugin.route('/mixtapes/')
+def show_mixtapes():
+    mixtapes = plugin.get_storage('mixtapes')
+    items = format_mixtapes(mixtapes)
+    items.append(new_mixtape_item())
+    return add_items(items)
+
+
+@plugin.route('/mixtapes/new')
+def new_mixtape(return_name=False):
+    name = plugin.keyboard(heading=_('mixtape_name'))
+    if name:
+        mixtapes = plugin.get_storage('mixtapes')
+        if not name in mixtapes:
+            mixtapes[name] = []
+            mixtapes.sync()
+        if return_name:
+            return name
+
+
+@plugin.route('/mixtapes/del/<mixtape_id>')
+def del_mixtape(mixtape_id):
+    mixtapes = plugin.get_storage('mixtapes')
+    confirmed = xbmcgui.Dialog().yesno(
+        _('delete_mixtape_head'),
+        _('are_you_sure')
+    )
+    if confirmed and mixtape_id in mixtapes:
+        del mixtapes[mixtape_id]
+        mixtapes.sync()
+
+
+@plugin.route('/mixtapes/add/<track_id>')
+def add_del_track_to_mixtape(track_id):
+    mixtapes = plugin.get_storage('mixtapes')
+    items = [{
+        'label':_('add_to_new_mixtape'),
+    }]
+    for (mixtape_id, mixtape) in mixtapes.iteritems():
+        track_ids = [t['id'] for t in mixtape]
+        if track_id in track_ids:
+            items.append({
+                'label': _('del_from_mixtape_s') % mixtape_id,
+                'action': 'del',
+                'mixtape_id': mixtape_id
+            })
+        else:
+            items.append({
+                'label': _('add_to_mixtape_s') % mixtape_id,
+                'action': 'add',
+                'mixtape_id': mixtape_id
+            })
+    selected = xbmcgui.Dialog().select(
+        _('select_mixtape'), [i['label'] for i in items]
+    )
+    if selected == 0:
+        mixtape_id = new_mixtape(return_name=True)
+        if mixtape_id:
+            add_track_to_mixtape(mixtape_id, track_id)
+    elif selected > 0:
+        action = items[selected]['action']
+        mixtape_id = items[selected]['mixtape_id']
+        if action == 'add':
+            add_track_to_mixtape(mixtape_id, track_id)
+        elif action == 'del':
+            del_track_from_mixtape(mixtape_id, track_id)
+
+
+@plugin.route('/mixtapes/<mixtape_id>/')
+def show_mixtape(mixtape_id):
+    mixtapes = plugin.get_storage('mixtapes')
+    tracks = mixtapes[mixtape_id]
+    items = format_tracks(tracks)
+    return add_items(items)
+
+
+@plugin.route('/mixtapes/<mixtape_id>/add/<track_id>')
+def add_track_to_mixtape(mixtape_id, track_id):
+    mixtapes = plugin.get_storage('mixtapes')
+    track = api.get_tracks(filter_dict={'id': track_id})[0]
+    mixtapes[mixtape_id].append(track)
+    mixtapes.sync()
+
+
+@plugin.route('/mixtapes/<mixtape_id>/del/<track_id>')
+def del_track_from_mixtape(mixtape_id, track_id):
+    mixtapes = plugin.get_storage('mixtapes')
+    mixtapes[mixtape_id] = [
+        t for t in mixtapes[mixtape_id]
+        if not t['id'] == track_id
+    ]
+    mixtapes.sync()
 
 
 @plugin.route('/sort_methods/<entity>/')
@@ -565,6 +674,24 @@ def format_sort_methods(sort_methods, entity):
     return items
 
 
+def format_mixtapes(mixtapes):
+    items = [{
+        'label': mixtape_id,
+        'info': {
+            'count': i + 1,
+        },
+        'context_menu': mixtape_context_menu(
+            mixtape_id=mixtape_id,
+        ),
+        'replace_context_menu': True,
+        'path': plugin.url_for(
+            endpoint='show_mixtape',
+            mixtape_id=mixtape_id
+        )
+    } for i, (mixtape_id, mixtape) in enumerate(mixtapes.iteritems())]
+    return items
+
+
 def get_comment(musicinfo):
     return '[CR]'.join((
         '[B]%s[/B]: %s' % (
@@ -637,6 +764,18 @@ def pagination_items(items_len):
     return items
 
 
+def new_mixtape_item():
+    return {
+        'label': '[B]%s[/B]' % _('add_new_mixtape'),
+        'info': {
+            'count': 0,
+        },
+        'path': plugin.url_for(
+            endpoint='new_mixtape',
+        ),
+    }
+
+
 def add_items(items):
     is_update = 'is_update' in plugin.request.args
     finish_kwargs = {
@@ -702,6 +841,9 @@ def track_context_menu(artist_id, track_id, album_id):
         (_('download_track'),
          _run(endpoint='download_track',
               track_id=track_id)),
+        (_('add_del_track_to_mixtape'),
+         _run(endpoint='add_del_track_to_mixtape',
+              track_id=track_id)),
         (_('show_albums_by_this_artist'),
          _view(endpoint='show_albums_by_artist',
                artist_id=artist_id)),
@@ -711,6 +853,16 @@ def track_context_menu(artist_id, track_id, album_id):
         (_('show_tracks_in_this_album'),
          _view(endpoint='show_tracks_in_album',
                album_id=album_id)),
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
+
+
+def mixtape_context_menu(mixtape_id):
+    return [
+        (_('delete_mixtape'),
+         _run(endpoint='del_mixtape',
+              mixtape_id=mixtape_id)),
         (_('addon_settings'),
          _run(endpoint='open_settings')),
     ]

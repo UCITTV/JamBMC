@@ -14,6 +14,7 @@
     <string id="30010">Search for Playlists</string>
     <string id="30011">Your Playback History</string>
     <string id="30012">Your Downloaded Songs</string>
+    <string id="30013">Your Mixtapes</string>
     <!-- Misc strings -->
     <string id="30020">Page</string>
     <!-- Context menu -->
@@ -53,6 +54,17 @@
     <string id="30082">Downloading to: %s</string>
     <string id="30083">Item %s of %s Items</string>
     <string id="30084">Current File: %s</string>
+    <!-- Mixtapes -->
+    <string id="30090">New Mixtape Name</string>
+    <string id="30091">Delete Mixtape</string>
+    <string id="30092">Are you sure?</string>
+    <string id="30093">Add to new Mixtape</string>
+    <string id="30094">Add to Mixtape: %s</string>
+    <string id="30095">Del from Mixtape: %s</string>
+    <string id="30096">Choose Mixtape</string>
+    <string id="30097">Add new Mixtape</string>
+    <string id="30098">Add/Del to Mixtape</string>
+    <string id="3009">Delete Mixtape</string>
     <!-- Settings -->
     <string id="30300">Limit (Items per Page)</string>
     <string id="30301">Force Thumbnail-View</string>
