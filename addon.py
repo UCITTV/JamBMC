@@ -312,12 +312,9 @@ def show_similar_tracks(track_id):
 @plugin.route('/history/')
 def show_history():
     plugin.set_content('songs')
-    track_ids = get_tracks_from_history()
-    if track_ids:
-        tracks = api.get_tracks(filter_dict={'id': '+'.join(track_ids)})
-        # extra round to get the items in their history order
-        tracks_dict = dict((track['id'], track) for track in tracks)
-        tracks = reversed([tracks_dict[i] for i in track_ids])
+    tracks = get_tracks_from_history()
+    if tracks:
+        tracks.reverse()
         items = format_tracks(tracks)
         return add_items(items)
     plugin.notify(_('history_empty'))
@@ -413,7 +410,7 @@ def show_mixtape(mixtape_id):
 @plugin.route('/mixtapes/<mixtape_id>/add/<track_id>')
 def add_track_to_mixtape(mixtape_id, track_id):
     mixtapes = plugin.get_storage('mixtapes')
-    track = api.get_tracks(filter_dict={'id': track_id})[0]
+    track = api.get_track(track_id)
     mixtapes[mixtape_id].append(track)
     mixtapes.sync()
 
@@ -454,7 +451,7 @@ def download_track(track_id):
     download_path = get_download_path('tracks_download_path')
     if not download_path:
         return
-    track = api.get_tracks(filter_dict={'id': track_id})[0]
+    track = api.get_track(track_id)
     track_url = api.get_track_url(track_id)
     filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
         'artist': track['artist_name'],
@@ -916,9 +913,10 @@ def add_track_to_history(track_id):
     history = plugin.get_storage('history')
     if not 'items' in history:
         history['items'] = []
-    if not track_id in history['items']:
-        history['items'].append(track_id)
-        if len(history['items']) > 25:
+    if not track_id in [t['id'] for t in history['items']]:
+        track = api.get_track(track_id)
+        history['items'].append(track)
+        while len(history['items']) > 25:
             history['items'].pop(0)
         history.sync()
 

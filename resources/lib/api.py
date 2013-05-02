@@ -163,6 +163,9 @@ class JamendoApi():
         }
         return self.get_tracks(page=page, filter_dict=filter_dict)
 
+    def get_track(self, track_id):
+        return self.get_tracks(filter_dict={'id': track_id})[0]
+
     def get_track_url(self, track_id, do_request=True):
         path = 'tracks/file'
         params = {
