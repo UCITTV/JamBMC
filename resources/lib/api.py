@@ -26,8 +26,8 @@ USER_AGENT = 'XBMC Jamendo API'
 
 SORT_METHODS = {
     'albums': (
-        'releasedate_desc', 'popularity_total', 'popularity_month',
-        'popularity_week'
+        'releasedate_desc', 'releasedate_asc', 'popularity_total',
+        'popularity_month', 'popularity_week'
     ),
     'artists': (
         'name', 'joindate_asc', 'joindate_desc', 'popularity_total',
