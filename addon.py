@@ -594,7 +594,7 @@ def format_playlists(playlists):
             'album': playlist['name'],
             'year': int(playlist.get('creationdate', '0-0-0').split('-')[0]),
         },
-        'context_menu': playlist_context_menu(),
+        'context_menu': empty_context_menu(),
         'replace_context_menu': True,
         'path': plugin.url_for(
             endpoint='show_tracks_in_playlist',
@@ -628,7 +628,7 @@ def format_radios(radios):
         'info': {
             'count': i + 2,
         },
-        'context_menu': radio_context_menu(),
+        'context_menu': empty_context_menu(),
         'replace_context_menu': True,
         'thumbnail': radio['image'],
         'is_playable': True,
@@ -701,7 +701,7 @@ def format_sort_methods(sort_methods, entity):
         'info': {
             'count': i,
         },
-        'context_menu': sort_method_context_menu(),
+        'context_menu': empty_context_menu(),
         'replace_context_menu': True,
         'path': plugin.url_for(
             endpoint='show_%s' % entity,
@@ -826,21 +826,7 @@ def add_items(items):
     return plugin.finish(items, **finish_kwargs)
 
 
-def radio_context_menu():
-    return [
-        (_('addon_settings'),
-         _run(endpoint='open_settings')),
-    ]
-
-
-def playlist_context_menu():
-    return [
-        (_('addon_settings'),
-         _run(endpoint='open_settings')),
-    ]
-
-
-def sort_method_context_menu():
+def empty_context_menu():
     return [
         (_('addon_settings'),
          _run(endpoint='open_settings')),
