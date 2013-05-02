@@ -66,6 +66,8 @@ class JamendoDownloader(object):
             except IOError, e:
                 log('IOError: "%s"' % str(e))
                 break
+            except KeyboardInterrupt:
+                break
             log('Item Done')
             if self.show_progress and self.progress_dialog.iscanceled():
                 log('Canceled')
@@ -76,6 +78,8 @@ class JamendoDownloader(object):
 
     def update_progress(self, block_count, block_size, item_size):
         if self.show_progress:
+            if self.progress_dialog.iscanceled():
+                raise KeyboardInterrupt
             percent = int(self.current_item_count * 100 / self.total_count)
             line1 = _('downloading_s_of_s') % (
                 self.current_item_count,
