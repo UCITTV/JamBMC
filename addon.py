@@ -39,6 +39,7 @@ STRINGS = {
     'show_history': 30011,
     'show_downloads': 30012,
     'show_mixtapes': 30013,
+    'show_featured_tracks': 30014,
     # Misc strings
     'page': 30020,
     # Context menu
@@ -146,6 +147,8 @@ def root_menu():
          'path': plugin.url_for(endpoint='show_downloads')},
         {'label': _('show_mixtapes'),
          'path': plugin.url_for(endpoint='show_mixtapes')},
+        {'label': _('show_featured_tracks'),
+         'path': plugin.url_for(endpoint='show_featured_tracks')},
     ]
     return plugin.finish(items)
 
@@ -322,6 +325,21 @@ def show_similar_tracks(track_id):
     page = int(args_get('page', 1))
     tracks = api.get_similar_tracks(track_id=track_id, page=page)
     items = format_similar_tracks(tracks)
+    items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/tracks/featured/')
+def show_featured_tracks():
+    plugin.set_content('songs')
+    page = int(args_get('page', 1))
+    sort_method = 'releasedate_desc'
+    tracks = api.get_tracks(
+        page=page,
+        sort_method=sort_method,
+        filter_dict={'featured': 1}
+    )
+    items = format_tracks(tracks)
     items.extend(pagination_items(len(items)))
     return add_items(items)
 
