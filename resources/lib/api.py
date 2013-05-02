@@ -109,7 +109,8 @@ class JamendoApi():
         params = {
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
-            'include': 'musicinfo'
+            'include': 'musicinfo',
+            'audioformat': self._audioformat,
         }
         if sort_method:
             params['order'] = sort_method
@@ -166,13 +167,13 @@ class JamendoApi():
     def get_track(self, track_id):
         return self.get_tracks(filter_dict={'id': track_id})[0]
 
-    def get_track_url(self, track_id, do_request=True):
+    def get_track_url(self, track_id):
         path = 'tracks/file'
         params = {
             'audioformat': self._audioformat,
             'id': track_id
         }
-        track_url = self._get_api_url(path, params, do_request)
+        track_url = self._get_redirect_location(path, params)
         self.log('get_track_url track_url: %s' % track_url)
         return track_url
 
@@ -185,7 +186,7 @@ class JamendoApi():
         radio = radios[0] if radios else {}
         return radio.get('stream')
 
-    def _get_api_url(self, path, params={}, do_request=True):
+    def _get_redirect_location(self, path, params={}):
         headers = {
             'user-agent': USER_AGENT
         }
@@ -193,20 +194,14 @@ class JamendoApi():
             'client_id': self._client_id,
         })
         url = self._api_url + path
-        if do_request:
-            request = requests.get(
-                url,
-                headers=headers,
-                params=params,
-                verify=False
-            )
-        else:
-            request = requests.Request(
-                'GET',
-                url,
-                params=params
-            ).prepare()
-        return request.url
+        request = requests.get(
+            url,
+            headers=headers,
+            params=params,
+            verify=False,
+            allow_redirects=False
+        )
+        return request.headers['Location']
 
     def _api_call(self, path, params={}, post={}):
         headers = {
