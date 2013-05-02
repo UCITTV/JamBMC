@@ -492,9 +492,9 @@ def download_track(track_id):
     audioformat = plugin.get_setting('download_format', choices=formats)
     track_url = api.get_track_url(track_id, audioformat)
     filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
-        'artist': track['artist_name'],
-        'title': track['name'],
-        'album': track['album_name'],
+        'artist': track['artist_name'].encode('ascii', 'ignore'),
+        'title': track['name'].encode('ascii', 'ignore'),
+        'album': track['album_name'].encode('ascii', 'ignore'),
         'year': track.get('releasedate', '0-0-0').split('-')[0],
     }
     track_filename = '%s.%s' % (filename, audioformat)
