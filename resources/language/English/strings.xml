@@ -91,4 +91,9 @@
     <string id="30304">Download Cover (Songs)</string>
     <string id="30305">Show Progress Dialog while downloading Track</string>
     <string id="30306">Max. Items in History</string>
+    <string id="30307">Audioformat (Playback)</string>
+    <string id="30308">Audioformat (Download)</string>
+    <string id="30310">MP3</string>
+    <string id="30311">OGG (Vorbis)</string>
+    <string id="30312">FLAC (Lossless)</string>
 </strings>

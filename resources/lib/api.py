@@ -41,6 +41,12 @@ SORT_METHODS = {
     ),
 }
 
+AUDIO_FORMATS = {
+    'mp3': 'mp32',
+    'ogg': 'ogg',
+    'flac': 'flac'
+}
+
 
 class AuthError(Exception):
     pass
@@ -57,10 +63,10 @@ class ConnectionError(Exception):
 class JamendoApi():
 
     def __init__(self, client_id, use_https=True, limit=100,
-                 audioformat='ogg'):
+                 audioformat=None):
         self._client_id = client_id
         self._use_https = bool(use_https)
-        self._audioformat = audioformat
+        self._audioformat = AUDIO_FORMATS.get(audioformat, 'mp32')
         self._limit = min(int(limit), 100)
 
     def get_albums(self, page=1, artist_id=None, sort_method=None,
@@ -110,7 +116,6 @@ class JamendoApi():
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
             'include': 'musicinfo',
-            'audioformat': self._audioformat,
         }
         if sort_method:
             params['order'] = sort_method
@@ -152,7 +157,6 @@ class JamendoApi():
             'id': track_id,
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
-            'audioformat': self._audioformat,
             'imagesize': 400,
         }
         tracks = self._api_call(path, params)
@@ -167,10 +171,10 @@ class JamendoApi():
     def get_track(self, track_id):
         return self.get_tracks(filter_dict={'id': track_id})[0]
 
-    def get_track_url(self, track_id):
+    def get_track_url(self, track_id, audioformat=None):
         path = 'tracks/file'
         params = {
-            'audioformat': self._audioformat,
+            'audioformat': AUDIO_FORMATS.get(audioformat) or self._audioformat,
             'id': track_id
         }
         track_url = self._get_redirect_location(path, params)

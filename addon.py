@@ -470,14 +470,16 @@ def show_sort_methods(entity):
 def play_track(track_id):
     add_track_to_history(track_id)
     downloaded_tracks = plugin.get_storage('downloaded_tracks')
-    play_url = None
+    track_url = None
     if track_id in downloaded_tracks:
         if xbmcvfs.exists(downloaded_tracks[track_id]['file']):
             log('Track is already downloaded, playing local')
-            play_url = downloaded_tracks[track_id]['file']
-    if not play_url:
-        play_url = api.get_track_url(track_id)
-    return plugin.set_resolved_url(play_url)
+            track_url = downloaded_tracks[track_id]['file']
+    if not track_url:
+        formats = ('mp3', 'ogg')
+        audioformat = plugin.get_setting('playback_format', choices=formats)
+        track_url = api.get_track_url(track_id, audioformat)
+    return plugin.set_resolved_url(track_url)
 
 
 @plugin.route('/download/track/<track_id>')
@@ -486,14 +488,16 @@ def download_track(track_id):
     if not download_path:
         return
     track = api.get_track(track_id)
-    track_url = api.get_track_url(track_id)
+    formats = ('mp3', 'ogg', 'flac')
+    audioformat = plugin.get_setting('download_format', choices=formats)
+    track_url = api.get_track_url(track_id, audioformat)
     filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
         'artist': track['artist_name'],
         'title': track['name'],
         'album': track['album_name'],
         'year': track.get('releasedate', '0-0-0').split('-')[0],
     }
-    track_filename = '%s.ogg' % filename
+    track_filename = '%s.%s' % (filename, audioformat)
     items = [(track_url, track_filename)]
     if plugin.get_setting('download_track_cover', bool):
         cover_url = track['album_image']

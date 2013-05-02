@@ -7,4 +7,6 @@
     <setting id="show_track_download_progress" type="bool" label="30305" default="true"/>
     <setting id="download_track_cover" type="bool" label="30304" default="true"/>
     <setting id="history_limit" type="labelenum" label="30306" values="25|50|75|100" default="50"/>
+    <setting id="playback_format" type="enum" label="30307" lvalues="30310|30311" default="0"/>
+    <setting id="download_format" type="enum" label="30308" lvalues="30310|30311|30312" default="0"/>
 </settings>
