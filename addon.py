@@ -314,8 +314,7 @@ def show_history():
     plugin.set_content('songs')
     tracks = get_tracks_from_history()
     if tracks:
-        tracks.reverse()
-        items = format_tracks(tracks)
+        items = format_tracks(reversed(tracks))
         return add_items(items)
     plugin.notify(_('history_empty'))
 
@@ -911,12 +910,13 @@ def image_helper(url):
 
 def add_track_to_history(track_id):
     history = plugin.get_storage('history')
+    history_limit = plugin.get_setting('history_limit', int)
     if not 'items' in history:
         history['items'] = []
     if not track_id in [t['id'] for t in history['items']]:
         track = api.get_track(track_id)
         history['items'].append(track)
-        while len(history['items']) > 25:
+        while len(history['items']) > history_limit:
             history['items'].pop(0)
         history.sync()
 

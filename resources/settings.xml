@@ -6,4 +6,5 @@
     <setting id="tracks_download_path" type="folder" label="30303" source="auto" option="writeable"/>
     <setting id="show_track_download_progress" type="bool" label="30305" default="true"/>
     <setting id="download_track_cover" type="bool" label="30304" default="true"/>
+    <setting id="history_limit" type="labelenum" label="30306" values="25|50|75|100" default="50"/>
 </settings>
