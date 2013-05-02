@@ -65,6 +65,23 @@
     <string id="30097">Add new Mixtape</string>
     <string id="30098">Add/Del to Mixtape</string>
     <string id="30099">Delete Mixtape</string>
+    <!-- Sort methods -->
+    <string id="30100">Order: Default</string>
+    <string id="30101">Order: Buzzrate</string>
+    <string id="30102">Order: Downloads (week)</string>
+    <string id="30103">Order: Downloads (month)</string>
+    <string id="30104">Order: Downloads (total)</string>
+    <string id="30105">Order: Joindate (asc)</string>
+    <string id="30107">Order: Joindate (desc)</string>
+    <string id="30108">Order: Listens (week)</string>
+    <string id="30109">Order: Listens (month)</string>
+    <string id="30110">Order: Listens (total)</string>
+    <string id="30111">Order: Name</string>
+    <string id="30112">Order: Popularity (week)</string>
+    <string id="30113">Order: Popularity (month)</string>
+    <string id="30114">Order: Popularity (total)</string>
+    <string id="30115">Order: Releasedate (asc)</string>
+    <string id="30116">Order: Releasedate (desc)</string>
     <!-- Settings -->
     <string id="30300">Max. Items per Page</string>
     <string id="30301">Force Thumbnail-View</string>

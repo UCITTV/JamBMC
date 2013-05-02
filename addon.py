@@ -82,7 +82,24 @@ STRINGS = {
     'select_mixtape': 30096,
     'add_new_mixtape': 30097,
     'add_del_track_to_mixtape': 30098,
-    'delete_mixtape': 30099
+    'delete_mixtape': 30099,
+    # Sort methods
+    'sort_method_default': 30100,
+    'sort_method_buzzrate': 30101,
+    'sort_method_downloads_week': 30102,
+    'sort_method_downloads_month': 30103,
+    'sort_method_downloads_total': 30104,
+    'sort_method_joindate_asc': 30105,
+    'sort_method_joindate_desc': 30107,
+    'sort_method_listens_week': 30108,
+    'sort_method_listens_month': 30109,
+    'sort_method_listens_total': 30110,
+    'sort_method_name': 30111,
+    'sort_method_popularity_week': 30112,
+    'sort_method_popularity_month': 30113,
+    'sort_method_popularity_total': 30114,
+    'sort_method_releasedate_asc': 30115,
+    'sort_method_releasedate_desc': 30116,
 
 }
 
