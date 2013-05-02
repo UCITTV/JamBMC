@@ -488,15 +488,22 @@ def open_settings():
 
 
 def format_tracks(tracks):
+    downloaded_tracks = plugin.get_storage('downloaded_tracks')
+
+    def mark(label, track_id):
+        if track_id in downloaded_tracks.keys():
+            return u'[I]%s[/I]' % label
+        return label
+
     items = [{
         'label': '%s - %s (%s)' % (
             track['artist_name'],
-            track['name'],
+            mark(track['name'], track['id']),
             track['album_name']
         ),
         'info': {
             'count': i + 2,
-            'title': track['name'],
+            'title': mark(track['name'], track['id']),
             'album': track['album_name'],
             'duration': track['duration'],
             'artist': track['artist_name'],
