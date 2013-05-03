@@ -26,6 +26,7 @@
     <string id="30034">Show similar Songs</string>
     <string id="30035">Add-on Settings</string>
     <string id="30036">Download this Track</string>
+    <string id="30037">Download this Album</string>
     <!-- Dialogs -->
     <string id="30040">Enter Album title</string>
     <string id="30041">Enter Artist name</string>
@@ -96,4 +97,7 @@
     <string id="30310">MP3</string>
     <string id="30311">OGG (Vorbis)</string>
     <string id="30312">FLAC (Lossless)</string>
+    <string id="30313">Download Cover (Albums)</string>
+    <string id="30314">Show Progress Dialog while downloading Album</string>
+    <string id="30315">Download Path (Albums)</string>
 </strings>

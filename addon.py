@@ -50,6 +50,7 @@ STRINGS = {
     'show_similar_tracks': 30034,
     'addon_settings': 30035,
     'download_track': 30036,
+    'download_album': 30037,
     # Dialogs
     'search_heading_album': 30040,
     'search_heading_artist': 30041,
@@ -516,6 +517,51 @@ def download_track(track_id):
         plugin.notify(msg=_('download_suceeded'))
 
 
+@plugin.route('/download/album/<album_id>')
+def download_album(album_id):
+    download_path = get_download_path('albums_download_path')
+    if not download_path:
+        return
+    tracks = api.get_tracks(filter_dict={'album_id': album_id})
+    formats = ('mp3', 'ogg', 'flac')
+    audioformat = plugin.get_setting('download_format', choices=formats)
+    items = []
+    track_filenames = {}
+    for track in tracks:
+        track_url = api.get_track_url(track['id'], audioformat)
+        filename = '%(artist)s - %(title)s' % {
+            'artist': track['artist_name'].encode('ascii', 'ignore'),
+            'title': track['name'].encode('ascii', 'ignore'),
+        }
+        track_filename = '%s.%s' % (filename, audioformat)
+        track_filenames[track['id']] = track_filename
+        items.append((track_url, track_filename))
+    any_track = tracks[0]
+    sub_dir = '%(artist)s - %(album)s [%(year)s]' % {
+        'artist': any_track['artist_name'].encode('ascii', 'ignore'),
+        'album': any_track['album_name'].encode('ascii', 'ignore'),
+        'year': any_track.get('releasedate', '0-0-0').split('-')[0],
+    }
+    if plugin.get_setting('download_album_cover', bool):
+        cover_url = any_track['album_image']
+        cover_filename = 'folder.jpg'
+        items.append((cover_url, cover_filename))
+    show_progress = plugin.get_setting('show_album_download_progress', bool)
+    downloader = JamendoDownloader(download_path, show_progress)
+    downloaded_items = downloader.download(items, sub_dir)
+    if downloaded_items:
+        downloaded_tracks = plugin.get_storage('downloaded_tracks')
+        for track_id, track_filename in track_filenames.iteritems():
+            if track_filename in downloaded_items:
+                downloaded_tracks[track_id] = {
+                    'file': downloaded_items[track_filename],
+                    'data': track
+                }
+        downloaded_tracks.sync()
+    if len(downloaded_items) == len(items):
+        plugin.notify(msg=_('download_suceeded'))
+
+
 @plugin.route('/play/radio/<radio_id>')
 def play_radio(radio_id):
     stream_url = api.get_radio_url(radio_id)
@@ -842,6 +888,9 @@ def album_context_menu(artist_id, album_id):
     return [
         (_('album_info'),
          _action('info')),
+        (_('download_album'),
+         _run(endpoint='download_album',
+              album_id=album_id)),
         (_('show_tracks_in_this_album'),
          _view(endpoint='show_tracks_in_album',
                album_id=album_id)),

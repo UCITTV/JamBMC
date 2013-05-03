@@ -50,7 +50,7 @@ class JamendoDownloader(object):
         else:
             self.progress_dialog = None
 
-    def download(self, items):
+    def download(self, items, sub_dir=None):
 
         self.total_count = len(items)
         line3 = _('downloading_to_s') % self.download_path
@@ -58,6 +58,10 @@ class JamendoDownloader(object):
             self.progress_dialog.update(2, '', '', line3)
         if not xbmcvfs.exists(self.temp_path):
             xbmcvfs.mkdirs(self.temp_path)
+        if sub_dir:
+            self.download_path = os.path.join(self.download_path, sub_dir)
+        if not xbmcvfs.exists(self.download_path):
+            xbmcvfs.mkdirs(self.download_path)
         downloaded_items = {}
         for i, (track_url, filename) in enumerate(items):
             self.current_item_count = i + 1
