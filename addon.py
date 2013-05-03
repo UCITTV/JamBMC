@@ -506,10 +506,10 @@ def download_track(track_id):
     show_progress = plugin.get_setting('show_track_download_progress', bool)
     downloader = JamendoDownloader(download_path, show_progress)
     downloaded_items = downloader.download(items)
-    if downloaded_items:
+    if track_filename in downloaded_items:
         downloaded_tracks = plugin.get_storage('downloaded_tracks')
         downloaded_tracks[track_id] = {
-            'file': downloaded_items[0],
+            'file': downloaded_items[track_filename],
             'data': track
         }
         downloaded_tracks.sync()

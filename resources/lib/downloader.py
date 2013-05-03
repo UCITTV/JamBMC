@@ -22,6 +22,7 @@ from urllib import urlretrieve
 
 import xbmc
 import xbmcaddon
+import xbmcvfs
 import xbmcgui
 
 STRINGS = {
@@ -41,6 +42,7 @@ class JamendoDownloader(object):
         log('__init__ with path="%s"' % download_path)
         self.download_path = download_path
         self.show_progress = show_progress
+        self.temp_path = xbmc.translatePath(addon.getAddonInfo('profile'))
         if self.show_progress:
             self.progress_dialog = xbmcgui.DialogProgress()
             self.progress_dialog.create(_('progress_head'))
@@ -49,20 +51,21 @@ class JamendoDownloader(object):
             self.progress_dialog = None
 
     def download(self, items):
+
         self.total_count = len(items)
         line3 = _('downloading_to_s') % self.download_path
         if self.show_progress:
             self.progress_dialog.update(2, '', '', line3)
-        if not os.path.isdir(self.download_path):
-            os.mkdir(self.download_path)
-        downloaded_items = []
+        if not xbmcvfs.exists(self.temp_path):
+            xbmcvfs.mkdirs(self.temp_path)
+        downloaded_items = {}
         for i, (track_url, filename) in enumerate(items):
             self.current_item_count = i + 1
             self.current_filename = filename
-            filename = os.path.join(self.download_path, filename)
-            log('Downloading "%s" to "%s"' % (track_url, filename))
+            temp_file = os.path.join(self.temp_path, filename)
+            log('Downloading "%s" to "%s"' % (track_url, temp_file))
             try:
-                urlretrieve(track_url, filename, self.update_progress)
+                urlretrieve(track_url, temp_file, self.update_progress)
             except IOError, e:
                 log('IOError: "%s"' % str(e))
                 break
@@ -72,7 +75,11 @@ class JamendoDownloader(object):
             if self.show_progress and self.progress_dialog.iscanceled():
                 log('Canceled')
                 return
-            downloaded_items.append(filename)
+            final_file = os.path.join(self.download_path, filename)
+            log('Moving "%s" to "%s"' % (temp_file, final_file))
+            xbmcvfs.copy(temp_file, final_file)
+            xbmcvfs.delete(temp_file)
+            downloaded_items[filename] = final_file
         log('All Done')
         return downloaded_items
 
