@@ -90,7 +90,7 @@
     <string id="30302">Use HTTPS</string>
     <string id="30303">Download Path (Songs)</string>
     <string id="30304">Download Cover (Songs)</string>
-    <string id="30305">Show Progress Dialog while downloading Track</string>
+    <string id="30305">Show Progress Dialog while downloading (Songs)</string>
     <string id="30306">Max. Items in History</string>
     <string id="30307">Audioformat (Playback)</string>
     <string id="30308">Audioformat (Download)</string>
@@ -98,6 +98,12 @@
     <string id="30311">OGG (Vorbis)</string>
     <string id="30312">FLAC (Lossless)</string>
     <string id="30313">Download Cover (Albums)</string>
-    <string id="30314">Show Progress Dialog while downloading Album</string>
+    <string id="30314">Show Progress Dialog while downloading (Albums)</string>
     <string id="30315">Download Path (Albums)</string>
+    <!-- Setting categories and labels -->
+    <string id="30350">GUI</string>
+    <string id="30351">Download</string>
+    <string id="30352">Song</string>
+    <string id="30353">Album</string>
+    <string id="30354">Audioformat/API</string>
 </strings>
