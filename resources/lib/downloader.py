@@ -28,7 +28,7 @@ STRINGS = {
     'progress_head': 30080,
     'preparing_download': 30081,
     'downloading_to_s': 30082,
-    'downloading_s_of_s': 30083,
+    'current_progress_s_mb': 30083,
     'current_file_s': 30084,
 }
 
@@ -71,7 +71,7 @@ class JamendoDownloader(object):
             log('Item Done')
             if self.show_progress and self.progress_dialog.iscanceled():
                 log('Canceled')
-                break
+                return
             downloaded_items.append(filename)
         log('All Done')
         return downloaded_items
@@ -81,10 +81,8 @@ class JamendoDownloader(object):
             if self.progress_dialog.iscanceled():
                 raise KeyboardInterrupt
             percent = int(self.current_item_count * 100 / self.total_count)
-            line1 = _('downloading_s_of_s') % (
-                self.current_item_count,
-                self.total_count
-            )
+            current_mb = (block_count * block_size / 1024.0 / 1024.0)
+            line1 = _('current_progress_s_mb') % '%0.2f' % current_mb
             line2 = _('current_file_s') % self.current_filename
             self.progress_dialog.update(percent, line1, line2)
 

@@ -53,7 +53,7 @@
     <string id="30080">Jamendo Downloader</string>
     <string id="30081">Preparing download...</string>
     <string id="30082">Downloading to: %s</string>
-    <string id="30083">Item %s of %s Items</string>
+    <string id="30083">Current Progress: %s MB</string>
     <string id="30084">Current File: %s</string>
     <!-- Mixtapes -->
     <string id="30090">New Mixtape Name</string>
