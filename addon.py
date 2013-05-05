@@ -493,10 +493,10 @@ def download_track(track_id):
     formats = ('mp3', 'ogg', 'flac')
     audioformat = plugin.get_setting('download_format', choices=formats)
     include_cover = plugin.get_setting('download_track_cover', bool)
-    downloads = downloader.download_track(track_id, audioformat, include_cover)
-    if downloads:
+    tracks = downloader.download_track(track_id, audioformat, include_cover)
+    if tracks:
         downloaded_tracks = plugin.get_storage('downloaded_tracks')
-        downloaded_tracks.update(downloads)
+        downloaded_tracks.update(tracks)
         downloaded_tracks.sync()
         plugin.notify(msg=_('download_suceeded'))
 
@@ -506,43 +506,16 @@ def download_album(album_id):
     download_path = get_download_path('albums_download_path')
     if not download_path:
         return
+    show_progress = plugin.get_setting('show_album_download_progress', bool)
+    downloader = JamendoDownloader(api, download_path, show_progress)
     formats = ('mp3', 'ogg', 'flac')
     audioformat = plugin.get_setting('download_format', choices=formats)
-    items_to_download = []
-    track_filenames = {}
-    tracks = api.get_tracks(filter_dict={'album_id': album_id})
-    for track in tracks:
-        track_url = api.get_track_url(track['id'], audioformat)
-        filename = '%(artist)s - %(title)s' % {
-            'artist': track['artist_name'].encode('ascii', 'ignore'),
-            'title': track['name'].encode('ascii', 'ignore'),
-        }
-        track_filename = '%s.%s' % (filename, audioformat)
-        track_filenames[track['id']] = track_filename
-        items_to_download.append((track_url, track_filename))
-    any_track = tracks[0]
-    sub_dir = '%(artist)s - %(album)s [%(year)s]' % {
-        'artist': any_track['artist_name'].encode('ascii', 'ignore'),
-        'album': any_track['album_name'].encode('ascii', 'ignore'),
-        'year': any_track.get('releasedate', '0-0-0').split('-')[0],
-    }
-    if plugin.get_setting('download_album_cover', bool):
-        cover_url = any_track['album_image']
-        cover_filename = 'folder.jpg'
-        items_to_download.append((cover_url, cover_filename))
-    show_progress = plugin.get_setting('show_album_download_progress', bool)
-    downloader = JamendoDownloader(download_path, show_progress)
-    downloaded_items = downloader.download(items_to_download, sub_dir)
-    if downloaded_items:
+    include_cover = plugin.get_setting('download_album_cover', bool)
+    tracks = downloader.download_album(album_id, audioformat, include_cover)
+    if tracks:
         downloaded_tracks = plugin.get_storage('downloaded_tracks')
-        for track_id, track_filename in track_filenames.iteritems():
-            if track_filename in downloaded_items:
-                downloaded_tracks[track_id] = {
-                    'file': downloaded_items[track_filename],
-                    'data': track
-                }
+        downloaded_tracks.update(tracks)
         downloaded_tracks.sync()
-    if len(downloaded_items) == len(items_to_download):
         plugin.notify(msg=_('download_suceeded'))
 
 

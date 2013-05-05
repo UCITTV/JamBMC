@@ -110,12 +110,14 @@ class JamendoApi():
         artists = self._api_call(path, params)
         return artists
 
-    def get_tracks(self, page=1, sort_method=None, filter_dict=None):
+    def get_tracks(self, page=1, sort_method=None, filter_dict=None,
+                   audioformat=None):
         path = 'tracks'
         params = {
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
             'include': 'musicinfo',
+            'audioformat': AUDIO_FORMATS.get(audioformat) or self._audioformat,
         }
         if sort_method:
             params['order'] = sort_method
@@ -168,8 +170,11 @@ class JamendoApi():
         }
         return self.get_tracks(page=page, filter_dict=filter_dict)
 
-    def get_track(self, track_id):
-        return self.get_tracks(filter_dict={'id': track_id})[0]
+    def get_track(self, track_id, audioformat=None):
+        tracks = self.get_tracks(
+            filter_dict={'id': track_id}, audioformat=audioformat
+        )
+        return tracks[0]
 
     def get_track_url(self, track_id, audioformat=None):
         path = 'tracks/file'

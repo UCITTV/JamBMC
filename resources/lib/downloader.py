@@ -36,6 +36,10 @@ STRINGS = {
 addon = xbmcaddon.Addon()
 
 
+class DownloadAborted(Exception):
+    pass
+
+
 class JamendoDownloader(object):
 
     def __init__(self, api, download_path, show_progress=True):
@@ -51,16 +55,16 @@ class JamendoDownloader(object):
     def download_track(self, track_id, audioformat, include_cover=True):
         downloaded_tracks = {}
         self._update_progress(2)
-        track = self.api.get_track(track_id)
-        self._update_progress(5)
-        track_url = self.api.get_track_url(track_id, audioformat)
-        self._update_progress(20)
+        track = self.api.get_track(track_id, audioformat=audioformat)
+        self._update_progress(15)
         filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
             'artist': track['artist_name'].encode('ascii', 'ignore'),
             'title': track['name'].encode('ascii', 'ignore'),
             'album': track['album_name'].encode('ascii', 'ignore'),
             'year': track.get('releasedate', '0-0-0').split('-')[0],
         }
+        line3 = _('downloading_to_s') % self.download_path
+        self._update_progress(line3=line3)
         if include_cover:
             cover_url = track['album_image']
             cover_filename = '%s.tbn' % filename
@@ -69,13 +73,65 @@ class JamendoDownloader(object):
             self._download_item(cover_url, cover_filename)
         self._update_progress(25)
         track_filename = '%s.%s' % (filename, audioformat)
-        track_file = self._download_item(track_url, track_filename)
+        line2 = _('current_file_s') % track_filename
+        self._update_progress(line2=line2)
+        try:
+            track_file = self._download_item(track['audio'], track_filename)
+        except DownloadAborted:
+            return None
         self._update_progress(80)
         if track_file:
             downloaded_tracks[track_id] = {
                 'file': track_file,
                 'data': track
             }
+        self._update_progress(100)
+        return downloaded_tracks
+
+    def download_album(self, album_id, audioformat, include_cover=True):
+        downloaded_tracks = {}
+        self._update_progress(2)
+        tracks = self.api.get_tracks(
+            filter_dict={'album_id': album_id},
+            audioformat=audioformat
+        )
+        self._update_progress(10)
+        any_track = tracks[0]
+        sub_dir = '%(artist)s - %(album)s [%(year)s]' % {
+            'artist': any_track['artist_name'].encode('ascii', 'ignore'),
+            'album': any_track['album_name'].encode('ascii', 'ignore'),
+            'year': any_track.get('releasedate', '0-0-0').split('-')[0],
+        }
+        self.download_path = os.path.join(self.download_path, sub_dir)
+        if not xbmcvfs.exists(self.download_path):
+            xbmcvfs.mkdirs(self.download_path)
+        line3 = _('downloading_to_s') % self.download_path
+        self._update_progress(line3=line3)
+        if include_cover:
+            cover_url = any_track['album_image']
+            cover_filename = 'folder.jpg'
+            line2 = _('current_file_s') % cover_filename
+            self._update_progress(line2=line2)
+            self._download_item(cover_url, cover_filename)
+        for i, track in enumerate(tracks):
+            filename = '%(artist)s - %(title)s' % {
+                'artist': track['artist_name'].encode('ascii', 'ignore'),
+                'title': track['name'].encode('ascii', 'ignore'),
+            }
+            track_filename = '%s.%s' % (filename, audioformat)
+            line2 = _('current_file_s') % track_filename
+            self._update_progress(line2=line2)
+            try:
+                track_file = self._download_item(track['audio'], track_filename)
+            except DownloadAborted:
+                break
+            if track_file:
+                downloaded_tracks[track['id']] = {
+                    'file': track_file,
+                    'data': track
+                }
+            percent = 10 + 90 / len(tracks) * (i + 1)
+            self._update_progress(percent)
         self._update_progress(100)
         return downloaded_tracks
 
@@ -89,7 +145,7 @@ class JamendoDownloader(object):
             log('IOError: "%s"' % str(e))
             return False
         except KeyboardInterrupt:
-            return False
+            raise DownloadAborted
         log('Moving "%s" to "%s"' % (temp_file, final_file))
         xbmcvfs.copy(temp_file, final_file)
         xbmcvfs.delete(temp_file)
