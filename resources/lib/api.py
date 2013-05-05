@@ -17,13 +17,11 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import json
 import requests
 
 
 API_URL = '%(scheme)s://api.jamendo.com/v3.0/'
 USER_AGENT = 'XBMC Jamendo API'
-
 SORT_METHODS = {
     'albums': (
         'releasedate_desc', 'releasedate_asc', 'popularity_total',
@@ -40,7 +38,6 @@ SORT_METHODS = {
         'releasedate_desc'
     ),
 }
-
 AUDIO_FORMATS = {
     'mp3': 'mp32',
     'ogg': 'ogg',
@@ -137,14 +134,6 @@ class JamendoApi():
         radios = self._api_call(path, params)
         return radios
 
-    def get_album_tracks(self, album_id):
-        path = 'albums/tracks'
-        params = {'id': [album_id]}
-        albums = self._api_call(path, params)
-        album = albums[0] if albums else {}
-        tracks = album.get('tracks', [])
-        return album, tracks
-
     def get_playlist_tracks(self, playlist_id):
         path = 'playlists/tracks'
         params = {'id': [playlist_id]}
@@ -202,9 +191,8 @@ class JamendoApi():
         params.update({
             'client_id': self._client_id,
         })
-        url = self._api_url + path
         request = requests.get(
-            url,
+            self._api_url + path,
             headers=headers,
             params=params,
             verify=False,
@@ -212,7 +200,7 @@ class JamendoApi():
         )
         return request.headers['Location']
 
-    def _api_call(self, path, params={}, post={}):
+    def _api_call(self, path, params={}):
         headers = {
             'content-type': 'application/json',
             'user-agent': USER_AGENT
@@ -221,15 +209,10 @@ class JamendoApi():
             'client_id': self._client_id,
             'format': 'json'
         })
-        url = self._api_url + path
-        data = json.dumps(post) if post else None
-        method = 'POST' if post else 'GET'
-        request = requests.request(
-            method,
-            url,
+        request = requests.get(
+            self._api_url + path,
             headers=headers,
             params=params,
-            data=data,
             verify=False  # XBMCs requests' SSL certificates are too old
         )
         self.log(u'_api_call using URL: %s' % request.url)
