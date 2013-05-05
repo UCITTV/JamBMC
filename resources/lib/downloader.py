@@ -38,68 +38,95 @@ addon = xbmcaddon.Addon()
 
 class JamendoDownloader(object):
 
-    def __init__(self, download_path, show_progress=True):
+    def __init__(self, api, download_path, show_progress=True):
         log('__init__ with path="%s"' % download_path)
+        self.api = api
         self.download_path = download_path
         self.show_progress = show_progress
         self.temp_path = xbmc.translatePath(addon.getAddonInfo('profile'))
+        if not xbmcvfs.exists(self.temp_path):
+            xbmcvfs.mkdirs(self.temp_path)
+        self._init_progress()
+
+    def download_track(self, track_id, audioformat, include_cover=True):
+        downloaded_tracks = {}
+        self._update_progress(2)
+        track = self.api.get_track(track_id)
+        self._update_progress(5)
+        track_url = self.api.get_track_url(track_id, audioformat)
+        self._update_progress(20)
+        filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
+            'artist': track['artist_name'].encode('ascii', 'ignore'),
+            'title': track['name'].encode('ascii', 'ignore'),
+            'album': track['album_name'].encode('ascii', 'ignore'),
+            'year': track.get('releasedate', '0-0-0').split('-')[0],
+        }
+        if include_cover:
+            cover_url = track['album_image']
+            cover_filename = '%s.tbn' % filename
+            line2 = _('current_file_s') % cover_filename
+            self._update_progress(line2=line2)
+            self._download_item(cover_url, cover_filename)
+        self._update_progress(25)
+        track_filename = '%s.%s' % (filename, audioformat)
+        track_file = self._download_item(track_url, track_filename)
+        self._update_progress(80)
+        if track_file:
+            downloaded_tracks[track_id] = {
+                'file': track_file,
+                'data': track
+            }
+        self._update_progress(100)
+        return downloaded_tracks
+
+    def _download_item(self, url, filename):
+        log('Downloading "%s" to "%s"' % (url, filename))
+        temp_file = os.path.join(self.temp_path, filename)
+        final_file = os.path.join(self.download_path, filename)
+        try:
+            urlretrieve(url, temp_file, self.__progress_hook)
+        except IOError, e:
+            log('IOError: "%s"' % str(e))
+            return False
+        except KeyboardInterrupt:
+            return False
+        log('Moving "%s" to "%s"' % (temp_file, final_file))
+        xbmcvfs.copy(temp_file, final_file)
+        xbmcvfs.delete(temp_file)
+        log('Item Done')
+        return final_file
+
+    def _init_progress(self):
         if self.show_progress:
+            self.current_percent = 1
             self.progress_dialog = xbmcgui.DialogProgress()
             self.progress_dialog.create(_('progress_head'))
-            self.progress_dialog.update(1, _('preparing_download'))
+            self._update_progress(1, line1=_('preparing_download'))
         else:
             self.progress_dialog = None
 
-    def download(self, items, sub_dir=None):
-
-        self.total_count = len(items)
-        line3 = _('downloading_to_s') % self.download_path
+    def _update_progress(self, percent=None, **kwargs):
         if self.show_progress:
-            self.progress_dialog.update(2, '', '', line3)
-        if not xbmcvfs.exists(self.temp_path):
-            xbmcvfs.mkdirs(self.temp_path)
-        if sub_dir:
-            self.download_path = os.path.join(self.download_path, sub_dir)
-        if not xbmcvfs.exists(self.download_path):
-            xbmcvfs.mkdirs(self.download_path)
-        downloaded_items = {}
-        for i, (track_url, filename) in enumerate(items):
-            self.current_item_count = i + 1
-            self.current_filename = filename
-            temp_file = os.path.join(self.temp_path, filename)
-            log('Downloading "%s" to "%s"' % (track_url, temp_file))
-            try:
-                urlretrieve(track_url, temp_file, self.update_progress)
-            except IOError, e:
-                log('IOError: "%s"' % str(e))
-                break
-            except KeyboardInterrupt:
-                break
-            log('Item Done')
-            if self.show_progress and self.progress_dialog.iscanceled():
-                log('Canceled')
-                return
-            final_file = os.path.join(self.download_path, filename)
-            log('Moving "%s" to "%s"' % (temp_file, final_file))
-            xbmcvfs.copy(temp_file, final_file)
-            xbmcvfs.delete(temp_file)
-            downloaded_items[filename] = final_file
-        log('All Done')
-        return downloaded_items
+            self.current_percent = percent or self.current_percent
+            self.progress_dialog.update(
+                self.current_percent, **kwargs
+            )
 
-    def update_progress(self, block_count, block_size, item_size):
+    def _del_progress(self):
+        if self.show_progress:
+            self.progress_dialog.close()
+            self.progress_dialog = None
+
+    def __progress_hook(self, block_count, block_size, item_size):
         if self.show_progress:
             if self.progress_dialog.iscanceled():
                 raise KeyboardInterrupt
-            percent = int(self.current_item_count * 100 / self.total_count)
             current_mb = (block_count * block_size / 1024.0 / 1024.0)
             line1 = _('current_progress_s_mb') % '%0.2f' % current_mb
-            line2 = _('current_file_s') % self.current_filename
-            self.progress_dialog.update(percent, line1, line2)
+            self._update_progress(line1=line1)
 
     def __del__(self):
-        if self.show_progress:
-            self.progress_dialog.close()
+        self._del_progress()
 
 
 def log(msg):
