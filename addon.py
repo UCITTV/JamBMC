@@ -25,7 +25,7 @@ from resources.lib.downloader import JamendoDownloader
 
 STRINGS = {
     # Root menu entries
-    'browse': 30000,
+    'discover': 30000,
     'search': 30001,
     'show_tracks': 30002,
     'show_albums': 30003,
@@ -144,8 +144,8 @@ api = JamendoApi(
 @plugin.route('/')
 def root_menu():
     items = [
-        {'label': _('browse'),
-         'path': plugin.url_for(endpoint='browse_root')},
+        {'label': _('discover'),
+         'path': plugin.url_for(endpoint='discover_root')},
         {'label': _('search'),
          'path': plugin.url_for(endpoint='search_root')},
         {'label': _('show_radios'),
@@ -179,8 +179,8 @@ def search_root():
     return plugin.finish(items)
 
 
-@plugin.route('/browse/')
-def browse_root():
+@plugin.route('/discover/')
+def discover_root():
     items = [
         {'label': _('show_tracks'),
          'path': plugin.url_for(endpoint='show_tracks')},

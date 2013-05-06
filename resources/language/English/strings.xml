@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
     <!-- Root menu entries -->
-    <string id="30000">Browse all Music</string>
-    <string id="30001">Search for Music</string>
+    <string id="30000">Discover</string>
+    <string id="30001">Search</string>
     <string id="30002">Browse Songs</string>
     <string id="30003">Browse Albums</string>
     <string id="30004">Browse Artists</string>
