@@ -617,7 +617,7 @@ def format_tracks(tracks):
         return label
 
     items = [{
-        'label': '%s - %s (%s)' % (
+        'label': u'%s - %s (%s)' % (
             track['artist_name'],
             mark(track['name'], track['id']),
             track['album_name']
@@ -628,7 +628,7 @@ def format_tracks(tracks):
             'album': track['album_name'],
             'duration': track['duration'],
             'artist': track['artist_name'],
-            'genre': ', '.join(track['musicinfo']['tags']['genres']),
+            'genre': u', '.join(track['musicinfo']['tags']['genres']),
             'comment': get_comment(track['musicinfo']),
             'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
         },
@@ -651,7 +651,7 @@ def format_tracks(tracks):
 def format_albums(albums):
     plugin.set_content('albums')
     items = [{
-        'label': '%s - %s' % (album['artist_name'], album['name']),
+        'label': u'%s - %s' % (album['artist_name'], album['name']),
         'info': {
             'count': i + 2,
             'artist': album['artist_name'],
@@ -675,7 +675,7 @@ def format_albums(albums):
 def format_playlists(playlists):
     plugin.set_content('music')
     items = [{
-        'label': '%s (%s)' % (playlist['name'], playlist['user_name']),
+        'label': u'%s (%s)' % (playlist['name'], playlist['user_name']),
         'info': {
             'count': i + 2,
             'artist': playlist['user_name'],
@@ -758,7 +758,7 @@ def format_playlist_tracks(playlist, tracks):
 def format_similar_tracks(tracks):
     plugin.set_content('songs')
     items = [{
-        'label': '%s - %s (%s)' % (
+        'label': u'%s - %s (%s)' % (
             track['artist_name'],
             track['name'],
             track['album_name']
@@ -840,9 +840,9 @@ def get_comment(musicinfo):
 
 
 def sort_method_switcher_item(entity):
-    current_sort_method = args_get('sort_method') or 'default'
+    current_method = args_get('sort_method') or 'default'
     return {
-        'label': '[B][[ %s ]][/B]' % _('sort_method_%s' % current_sort_method),
+        'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
         'info': {
             'count': 0,
         },
@@ -867,7 +867,7 @@ def pagination_items(items_len):
         next_page = int(current_page) + 1
         extra_params['page'] = next_page
         items.append({
-            'label': '>> %s %d >>' % (_('page'), next_page),
+            'label': u'>> %s %d >>' % (_('page'), next_page),
             'info': {
                 'count': items_len + 2,
             },
@@ -881,7 +881,7 @@ def pagination_items(items_len):
         previous_page = int(current_page) - 1
         extra_params['page'] = previous_page
         items.append({
-            'label': '<< %s %d <<' % (_('page'), previous_page),
+            'label': u'<< %s %d <<' % (_('page'), previous_page),
             'info': {
                 'count': 1,
             },
@@ -896,7 +896,7 @@ def pagination_items(items_len):
 
 def new_mixtape_item():
     return {
-        'label': '[B]%s[/B]' % _('add_new_mixtape'),
+        'label': u'[B]%s[/B]' % _('add_new_mixtape'),
         'info': {
             'count': 0,
         },
