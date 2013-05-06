@@ -208,9 +208,8 @@ def show_albums():
 
 @plugin.route('/albums/search/')
 def search_albums():
-    query = args_get(
-        'query',
-        plugin.keyboard(heading=_('search_heading_album'))
+    query = args_get('input') or plugin.keyboard(
+        heading=_('search_heading_album')
     )
     if query:
         plugin.set_content('albums')
@@ -241,9 +240,8 @@ def show_playlists():
 
 @plugin.route('/playlists/search/')
 def search_playlists():
-    query = args_get(
-        'query',
-        plugin.keyboard(heading=_('search_heading_playlist'))
+    query = args_get('input') or plugin.keyboard(
+        heading=_('search_heading_playlist')
     )
     if query:
         plugin.set_content('music')
@@ -266,9 +264,8 @@ def show_artists():
 
 @plugin.route('/artists/search/')
 def search_artists():
-    query = args_get(
-        'query',
-        plugin.keyboard(heading=_('search_heading_artist'))
+    query = args_get('input') or plugin.keyboard(
+        heading=_('search_heading_artist')
     )
     if query:
         plugin.set_content('artists')
@@ -301,9 +298,8 @@ def show_tracks():
 
 @plugin.route('/tracks/search/')
 def search_tracks():
-    query = args_get(
-        'query',
-        plugin.keyboard(heading=_('search_heading_tracks'))
+    query = args_get('input') or plugin.keyboard(
+        heading=_('search_heading_tracks')
     )
     if query:
         plugin.set_content('songs')
@@ -357,9 +353,8 @@ def show_featured_tracks():
 
 @plugin.route('/user/set_user_account/')
 def set_user_account():
-    query = args_get(
-        'query',
-        plugin.keyboard(heading=_('enter_username'))
+    query = args_get('input') or plugin.keyboard(
+        heading=_('enter_username')
     )
     if query:
         users = api.get_users(search_terms=query)
@@ -475,7 +470,9 @@ def show_mixtapes():
 
 @plugin.route('/mixtapes/new')
 def new_mixtape(return_name=False):
-    name = plugin.keyboard(heading=_('mixtape_name'))
+    name = args_get('input') or plugin.keyboard(
+        heading=_('mixtape_name')
+    )
     if name:
         mixtapes = plugin.get_storage('mixtapes')
         if not name in mixtapes:
