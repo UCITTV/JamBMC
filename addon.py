@@ -196,7 +196,6 @@ def discover_root():
 
 @plugin.route('/albums/')
 def show_albums():
-    plugin.set_content('albums')
     page = int(args_get('page', 1))
     sort_method = args_get('sort_method', 'popularity_month')
     albums = api.get_albums(page=page, sort_method=sort_method)
@@ -212,7 +211,6 @@ def search_albums():
         heading=_('search_heading_album')
     )
     if query:
-        plugin.set_content('albums')
         albums = api.get_albums(search_terms=query)
         items = format_albums(albums)
         return add_items(items)
@@ -220,7 +218,6 @@ def search_albums():
 
 @plugin.route('/albums/<artist_id>/')
 def show_albums_by_artist(artist_id):
-    plugin.set_content('albums')
     page = int(args_get('page', 1))
     albums = api.get_albums(page=page, artist_id=artist_id)
     items = format_albums(albums)
@@ -230,7 +227,6 @@ def show_albums_by_artist(artist_id):
 
 @plugin.route('/playlists/')
 def show_playlists():
-    plugin.set_content('music')
     page = int(args_get('page', 1))
     playlists = api.get_playlists(page=page)
     items = format_playlists(playlists)
@@ -244,7 +240,6 @@ def search_playlists():
         heading=_('search_heading_playlist')
     )
     if query:
-        plugin.set_content('music')
         playlists = api.get_playlists(search_terms=query)
         items = format_playlists(playlists)
         return add_items(items)
@@ -252,7 +247,6 @@ def search_playlists():
 
 @plugin.route('/artists/')
 def show_artists():
-    plugin.set_content('artists')
     page = int(args_get('page', 1))
     sort_method = args_get('sort_method', 'popularity_month')
     artists = api.get_artists(page=page, sort_method=sort_method)
@@ -268,7 +262,6 @@ def search_artists():
         heading=_('search_heading_artist')
     )
     if query:
-        plugin.set_content('artists')
         artists = api.get_artists(search_terms=query)
         items = format_artists(artists)
         return add_items(items)
@@ -276,7 +269,6 @@ def search_artists():
 
 @plugin.route('/radios/')
 def show_radios():
-    plugin.set_content('music')
     page = int(args_get('page', 1))
     radios = api.get_radios(page=page)
     items = format_radios(radios)
@@ -286,7 +278,6 @@ def show_radios():
 
 @plugin.route('/tracks/')
 def show_tracks():
-    plugin.set_content('songs')
     page = int(args_get('page', 1))
     sort_method = args_get('sort_method', 'popularity_month')
     tracks = api.get_tracks(page=page, sort_method=sort_method)
@@ -302,7 +293,6 @@ def search_tracks():
         heading=_('search_heading_tracks')
     )
     if query:
-        plugin.set_content('songs')
         tracks = api.search_tracks(search_terms=query)
         items = format_tracks(tracks)
         return add_items(items)
@@ -310,7 +300,6 @@ def search_tracks():
 
 @plugin.route('/tracks/album/<album_id>/')
 def show_tracks_in_album(album_id):
-    plugin.set_content('songs')
     tracks = api.get_tracks(filter_dict={'album_id': album_id})
     items = format_tracks(tracks)
     items.extend(pagination_items(len(items)))
@@ -319,7 +308,6 @@ def show_tracks_in_album(album_id):
 
 @plugin.route('/tracks/playlist/<playlist_id>/')
 def show_tracks_in_playlist(playlist_id):
-    plugin.set_content('songs')
     playlist, tracks = api.get_playlist_tracks(playlist_id=playlist_id)
     items = format_playlist_tracks(playlist, tracks)
     items.extend(pagination_items(len(items)))
@@ -328,7 +316,6 @@ def show_tracks_in_playlist(playlist_id):
 
 @plugin.route('/tracks/similar/<track_id>/')
 def show_similar_tracks(track_id):
-    plugin.set_content('songs')
     page = int(args_get('page', 1))
     tracks = api.get_similar_tracks(track_id=track_id, page=page)
     items = format_similar_tracks(tracks)
@@ -338,7 +325,6 @@ def show_similar_tracks(track_id):
 
 @plugin.route('/tracks/featured/')
 def show_featured_tracks():
-    plugin.set_content('songs')
     page = int(args_get('page', 1))
     sort_method = 'releasedate_desc'
     tracks = api.get_tracks(
@@ -397,7 +383,6 @@ def show_user_account():
 def show_user_artists():
     user_id = plugin.get_setting('user_id', str)
     if user_id:
-        plugin.set_content('artists')
         page = int(args_get('page', 1))
         artists = api.get_user_artists(user_id=user_id, page=page)
         items = format_artists(artists)
@@ -409,7 +394,6 @@ def show_user_artists():
 def show_user_albums():
     user_id = plugin.get_setting('user_id', str)
     if user_id:
-        plugin.set_content('albums')
         page = int(args_get('page', 1))
         albums = api.get_user_albums(user_id=user_id, page=page)
         items = format_albums(albums)
@@ -421,7 +405,6 @@ def show_user_albums():
 def show_user_tracks():
     user_id = plugin.get_setting('user_id', str)
     if user_id:
-        plugin.set_content('tracks')
         page = int(args_get('page', 1))
         tracks = api.get_user_tracks(user_id=user_id, page=page)
         items = format_tracks(tracks)
@@ -433,7 +416,6 @@ def show_user_tracks():
 def show_user_playlists():
     user_id = plugin.get_setting('user_id', str)
     if user_id:
-        plugin.set_content('music')
         playlists = api.get_playlists(user_id=user_id)
         items = format_playlists(playlists)
         return add_items(items)
@@ -441,7 +423,6 @@ def show_user_playlists():
 
 @plugin.route('/history/')
 def show_history():
-    plugin.set_content('songs')
     tracks = get_tracks_from_history()
     if tracks:
         items = format_tracks(reversed(tracks))
@@ -451,7 +432,6 @@ def show_history():
 
 @plugin.route('/downloads/tracks/')
 def show_downloads():
-    plugin.set_content('songs')
     downloads = plugin.get_storage('downloaded_tracks')
     if downloads.items():
         tracks = [t['data'] for t in downloads.itervalues()]
@@ -627,6 +607,8 @@ def open_settings():
 
 
 def format_tracks(tracks):
+    plugin.set_content('songs')
+
     downloaded_tracks = plugin.get_storage('downloaded_tracks')
 
     def mark(label, track_id):
@@ -667,6 +649,7 @@ def format_tracks(tracks):
 
 
 def format_albums(albums):
+    plugin.set_content('albums')
     items = [{
         'label': '%s - %s' % (album['artist_name'], album['name']),
         'info': {
@@ -690,6 +673,7 @@ def format_albums(albums):
 
 
 def format_playlists(playlists):
+    plugin.set_content('music')
     items = [{
         'label': '%s (%s)' % (playlist['name'], playlist['user_name']),
         'info': {
@@ -709,6 +693,7 @@ def format_playlists(playlists):
 
 
 def format_artists(artists):
+    plugin.set_content('artists')
     items = [{
         'label': artist['name'],
         'info': {
@@ -727,6 +712,7 @@ def format_artists(artists):
 
 
 def format_radios(radios):
+    plugin.set_content('music')
     items = [{
         'label': radio['dispname'],
         'info': {
@@ -745,6 +731,7 @@ def format_radios(radios):
 
 
 def format_playlist_tracks(playlist, tracks):
+    plugin.set_content('songs')
     items = [{
         'label': track['name'],
         'info': {
@@ -769,6 +756,7 @@ def format_playlist_tracks(playlist, tracks):
 
 
 def format_similar_tracks(tracks):
+    plugin.set_content('songs')
     items = [{
         'label': '%s - %s (%s)' % (
             track['artist_name'],
