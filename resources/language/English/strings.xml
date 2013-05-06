@@ -21,8 +21,12 @@
     <string id="30017">Tracks you like or favorite</string>
     <string id="30018">Your Jamendo.com User-Account</string>
     <string id="30019">Your public Playlists</string>
+    <string id="30020">Show Artists near your Location</string>
     <!-- Misc strings -->
-    <string id="30020">Page</string>
+    <string id="30025">Page</string>
+    <string id="30026">Language</string>
+    <string id="30027">Instruments</string>
+    <string id="30028">Tags</string>
     <!-- Context menu -->
     <string id="30030">Show Album info</string>
     <string id="30031">Show song info</string>
@@ -43,10 +47,9 @@
     <string id="30047">Enter your username</string>
     <string id="30048">Select user</string>
     <string id="30049">No username set</string>
-    <!-- Info dialog -->
-    <string id="30050">Language</string>
-    <string id="30051">Instruments</string>
-    <string id="30052">Tags</string>
+    <string id="30050">Geolocation by IP</string>
+    <string id="30051">This requires one anonymous HTTP-request</string>
+    <string id="30052">to the free service www.freegeoip.net</string>
     <!-- Error dialogs -->
     <string id="30060">Connection Error</string>
     <string id="30061">API Error</string>

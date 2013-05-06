@@ -20,6 +20,7 @@
 import xbmcvfs  # FIXME: Import form xbmcswift if fixed upstream
 from xbmcswift2 import Plugin, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi, ApiError, ConnectionError
+from resources.lib.geolocate import locate_me, QuotaReached
 from resources.lib.downloader import JamendoDownloader
 
 
@@ -45,8 +46,12 @@ STRINGS = {
     'show_user_tracks': 30017,
     'show_user_account': 30018,
     'show_user_playlists': 30019,
+    'show_near_artists': 30020,
     # Misc strings
-    'page': 30020,
+    'page': 30025,
+    'language': 30026,
+    'instruments': 30027,
+    'vartags': 30028,
     # Context menu
     'album_info': 30030,
     'song_info': 30031,
@@ -67,10 +72,9 @@ STRINGS = {
     'enter_username': 30047,
     'select_user': 30048,
     'no_username_set': 30049,
-    # Info dialog
-    'language': 30050,
-    'instruments': 30051,
-    'vartags': 30052,
+    'geolocating': 30050,
+    'will_send_one_request_to': 30051,
+    'freegeoip_net': 30052,
     # Error dialogs
     'connection_error': 30060,
     'api_error': 30061,
@@ -190,6 +194,8 @@ def discover_root():
          'path': plugin.url_for(endpoint='show_artists')},
         {'label': _('show_playlists'),
          'path': plugin.url_for(endpoint='show_playlists')},
+        {'label': _('show_near_artists'),
+         'path': plugin.url_for(endpoint='show_near_artists')},
     ]
     return plugin.finish(items)
 
@@ -334,6 +340,26 @@ def show_featured_tracks():
     )
     items = format_tracks(tracks)
     items.extend(pagination_items(len(items)))
+    return add_items(items)
+
+
+@plugin.route('/artists/near_me/')
+def show_near_artists():
+    lat_long = plugin.get_setting('lat_long', str)
+    while not lat_long:
+        confirmed = xbmcgui.Dialog().yesno(
+            _('geolocating'),
+            _('will_send_one_request_to'),
+            _('freegeoip_net'),
+            _('are_you_sure')
+        )
+        if not confirmed:
+            return
+        location = locate_me()
+        lat_long = '%s_%s' % (location['latitude'], location['longitude'])
+        plugin.set_setting('lat_long', lat_long)
+    artists = api.get_artists_by_location(coords=lat_long)
+    items = format_artists_location(artists)
     return add_items(items)
 
 
@@ -696,6 +722,29 @@ def format_artists(artists):
     plugin.set_content('artists')
     items = [{
         'label': artist['name'],
+        'info': {
+            'count': i + 2,
+            'artist': artist['name'],
+        },
+        'context_menu': artist_context_menu(artist['id']),
+        'replace_context_menu': True,
+        'thumbnail': image_helper(artist['image']),
+        'path': plugin.url_for(
+            endpoint='show_albums_by_artist',
+            artist_id=artist['id'],
+        )
+    } for i, artist in enumerate(artists)]
+    return items
+
+
+def format_artists_location(artists):
+    plugin.set_content('artists')
+    items = [{
+        'label': u'%s (%s - %s)' % (
+            artist['name'],
+            artist['locations'][0]['country'],
+            artist['locations'][0]['city'],
+        ),
         'info': {
             'count': i + 2,
             'artist': artist['name'],

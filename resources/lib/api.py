@@ -117,6 +117,16 @@ class JamendoApi():
         artists = self._api_call(path, params)
         return artists
 
+    def get_artists_by_location(self, coords, radius=20):
+        path = 'artists/locations'
+        params = {
+            'location_coords': coords,
+            'location_radius': radius,
+            'haslocation': True,
+        }
+        artists = self._api_call(path, params)
+        return artists
+
     def get_tracks(self, page=1, sort_method=None, filter_dict=None,
                    audioformat=None, ids=None):
         path = 'tracks'
