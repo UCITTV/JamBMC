@@ -40,6 +40,11 @@ STRINGS = {
     'show_downloads': 30012,
     'show_mixtapes': 30013,
     'show_featured_tracks': 30014,
+    'show_user_artists': 30015,
+    'show_user_albums': 30016,
+    'show_user_tracks': 30017,
+    'show_user_account': 30018,
+    'show_user_playlists': 30019,
     # Misc strings
     'page': 30020,
     # Context menu
@@ -59,6 +64,9 @@ STRINGS = {
     'no_download_path': 30044,
     'want_set_now': 30045,
     'choose_download_folder': 30046,
+    'enter_username': 30047,
+    'select_user': 30048,
+    'no_username_set': 30049,
     # Info dialog
     'language': 30050,
     'instruments': 30051,
@@ -150,6 +158,8 @@ def root_menu():
          'path': plugin.url_for(endpoint='show_mixtapes')},
         {'label': _('show_featured_tracks'),
          'path': plugin.url_for(endpoint='show_featured_tracks')},
+        {'label': _('show_user_account'),
+         'path': plugin.url_for(endpoint='show_user_account')},
     ]
     return plugin.finish(items)
 
@@ -343,6 +353,95 @@ def show_featured_tracks():
     items = format_tracks(tracks)
     items.extend(pagination_items(len(items)))
     return add_items(items)
+
+
+@plugin.route('/user/set_user_account/')
+def set_user_account():
+    query = args_get(
+        'query',
+        plugin.keyboard(heading=_('enter_username'))
+    )
+    if query:
+        users = api.get_users(search_terms=query)
+        if users:
+            selected = xbmcgui.Dialog().select(
+                _('select_user'), [u['name'] for u in users]
+            )
+            if selected >= 0:
+                user = users[selected]
+                plugin.set_setting('user_name', user['name'])
+                plugin.set_setting('user_id', user['id'])
+
+
+@plugin.route('/user/')
+def show_user_account():
+    user_id = plugin.get_setting('user_id', str)
+    while not user_id:
+        try_again = xbmcgui.Dialog().yesno(
+            _('no_username_set'),
+            _('want_set_now')
+        )
+        if not try_again:
+            return
+        set_user_account()
+        user_id = plugin.get_setting('user_id', str)
+    items = [
+        {'label': _('show_user_artists'),
+         'path': plugin.url_for(endpoint='show_user_artists')},
+        {'label': _('show_user_albums'),
+         'path': plugin.url_for(endpoint='show_user_albums')},
+        {'label': _('show_user_tracks'),
+         'path': plugin.url_for(endpoint='show_user_tracks')},
+        {'label': _('show_user_playlists'),
+         'path': plugin.url_for(endpoint='show_user_playlists')},
+    ]
+    return add_items(items)
+
+
+@plugin.route('/user/artists/')
+def show_user_artists():
+    user_id = plugin.get_setting('user_id', str)
+    if user_id:
+        plugin.set_content('artists')
+        page = int(args_get('page', 1))
+        artists = api.get_user_artists(user_id=user_id, page=page)
+        items = format_artists(artists)
+        items.extend(pagination_items(len(items)))
+        return add_items(items)
+
+
+@plugin.route('/user/albums/')
+def show_user_albums():
+    user_id = plugin.get_setting('user_id', str)
+    if user_id:
+        plugin.set_content('albums')
+        page = int(args_get('page', 1))
+        albums = api.get_user_albums(user_id=user_id, page=page)
+        items = format_albums(albums)
+        items.extend(pagination_items(len(items)))
+        return add_items(items)
+
+
+@plugin.route('/user/tracks/')
+def show_user_tracks():
+    user_id = plugin.get_setting('user_id', str)
+    if user_id:
+        plugin.set_content('tracks')
+        page = int(args_get('page', 1))
+        tracks = api.get_user_tracks(user_id=user_id, page=page)
+        items = format_tracks(tracks)
+        items.extend(pagination_items(len(items)))
+        return add_items(items)
+
+
+@plugin.route('/user/playlists/')
+def show_user_playlists():
+    user_id = plugin.get_setting('user_id', str)
+    if user_id:
+        plugin.set_content('music')
+        playlists = api.get_playlists(user_id=user_id)
+        items = format_playlists(playlists)
+        return add_items(items)
 
 
 @plugin.route('/history/')

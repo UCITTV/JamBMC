@@ -16,6 +16,11 @@
     <string id="30012">Your Downloaded Songs</string>
     <string id="30013">Your Mixtapes</string>
     <string id="30014">Jemando selected Songs</string>
+    <string id="30015">Artists you are fan of</string>
+    <string id="30016">Albums in your My-Albums-list</string>
+    <string id="30017">Tracks you like or favorite</string>
+    <string id="30018">Your Jamendo.com User-Account</string>
+    <string id="30019">Your public Playlists</string>
     <!-- Misc strings -->
     <string id="30020">Page</string>
     <!-- Context menu -->
@@ -35,6 +40,9 @@
     <string id="30044">No Download Path</string>
     <string id="30045">Do you want to set it now?</string>
     <string id="30046">Jamendo Download Path</string>
+    <string id="30047">Enter your username</string>
+    <string id="30048">Select user</string>
+    <string id="30049">No username set</string>
     <!-- Info dialog -->
     <string id="30050">Language</string>
     <string id="30051">Instruments</string>
@@ -100,10 +108,12 @@
     <string id="30313">Download Cover (Albums)</string>
     <string id="30314">Show Progress Dialog while downloading (Albums)</string>
     <string id="30315">Download Path (Albums)</string>
+    <string id="30316">Your Jamendo.com Username</string>
     <!-- Setting categories and labels -->
     <string id="30350">GUI</string>
     <string id="30351">Download</string>
     <string id="30352">Song</string>
     <string id="30353">Album</string>
-    <string id="30354">Audioformat/API</string>
+    <string id="30354">Audioformat</string>
+    <string id="30355">Username/HTTPS</string>
 </strings>

@@ -18,6 +18,9 @@
     <category label="30354">
         <setting id="playback_format" type="enum" label="30307" lvalues="30310|30311" default="0"/>
         <setting id="download_format" type="enum" label="30308" lvalues="30310|30311|30312" default="0"/>
+    </category>
+    <category label="30355">
         <setting id="use_https" type="bool" label="30302" default="true"/>
+        <setting id="user_name" type="action" label="30316" action="RunPlugin(plugin://plugin.audio.jamendo/user/set_user_account/)"/>
     </category>
 </settings>

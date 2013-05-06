@@ -43,6 +43,9 @@ AUDIO_FORMATS = {
     'ogg': 'ogg',
     'flac': 'flac'
 }
+USER_TRACK_RELATIONS = (
+    'like', 'favorite', 'review'
+)
 
 
 class AuthError(Exception):
@@ -67,7 +70,7 @@ class JamendoApi():
         self._limit = min(int(limit), 100)
 
     def get_albums(self, page=1, artist_id=None, sort_method=None,
-                   search_terms=None):
+                   search_terms=None, ids=None):
         path = 'albums'
         params = {
             'imagesize': 400,
@@ -80,10 +83,12 @@ class JamendoApi():
             params['order'] = sort_method
         if search_terms:
             params['namesearch'] = search_terms
+        if ids:
+            params['id'] = '+'.join(ids)
         albums = self._api_call(path, params)
         return albums
 
-    def get_playlists(self, page=1, search_terms=None):
+    def get_playlists(self, page=1, search_terms=None, user_id=None):
         path = 'playlists'
         params = {
             'limit': self._limit,
@@ -91,10 +96,13 @@ class JamendoApi():
         }
         if search_terms:
             params['namesearch'] = search_terms
+        if user_id:
+            params['user_id'] = user_id
         playlists = self._api_call(path, params)
         return playlists
 
-    def get_artists(self, page=1, sort_method=None, search_terms=None):
+    def get_artists(self, page=1, sort_method=None, search_terms=None,
+                    ids=None):
         path = 'artists'
         params = {
             'limit': self._limit,
@@ -104,11 +112,13 @@ class JamendoApi():
             params['order'] = sort_method
         if search_terms:
             params['namesearch'] = search_terms
+        if ids:
+            params['id'] = '+'.join(ids)
         artists = self._api_call(path, params)
         return artists
 
     def get_tracks(self, page=1, sort_method=None, filter_dict=None,
-                   audioformat=None):
+                   audioformat=None, ids=None):
         path = 'tracks'
         params = {
             'limit': self._limit,
@@ -120,6 +130,8 @@ class JamendoApi():
             params['order'] = sort_method
         if filter_dict:
             params.update(filter_dict)
+        if ids:
+            params['id'] = '+'.join(ids)
         tracks = self._api_call(path, params)
         return tracks
 
@@ -183,6 +195,60 @@ class JamendoApi():
         radios = self._api_call(path, params)
         radio = radios[0] if radios else {}
         return radio.get('stream')
+
+    def get_users(self, search_terms, page=1):
+        path = 'users'
+        params = {
+            'name': search_terms,
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+        }
+        users = self._api_call(path, params)
+        return users
+
+    def get_user_artists(self, user_id, page=1):
+        path = 'users/artists'
+        params = {
+            'id': user_id,
+            'relation': 'fan',
+            'imagesize': 100,
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+        }
+        users = self._api_call(path, params)
+        if users and users[0].get('artists'):
+            artist_ids = set((a['id'] for a in users[0]['artists']))
+            return self.get_artists(ids=artist_ids)
+        return []
+
+    def get_user_albums(self, user_id, page=1):
+        path = 'users/albums'
+        params = {
+            'id': user_id,
+            'relation': 'myalbums',
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+        }
+        users = self._api_call(path, params)
+        if users and users[0].get('albums'):
+            album_ids = set((a['id'] for a in users[0]['albums']))
+            return self.get_albums(ids=album_ids)
+        return []
+
+    def get_user_tracks(self, user_id, relations=None, page=1):
+        path = 'users/tracks'
+        params = {
+            'id': user_id,
+            'relation': '+'.join(relations or USER_TRACK_RELATIONS),
+            'imagesize': 100,
+            'limit': self._limit,
+            'offset': self._limit * (int(page) - 1),
+        }
+        users = self._api_call(path, params)
+        if users and users[0].get('tracks'):
+            track_ids = set((a['id'] for a in users[0]['tracks']))
+            return self.get_tracks(ids=track_ids)
+        return []
 
     def _get_redirect_location(self, path, params={}):
         headers = {
