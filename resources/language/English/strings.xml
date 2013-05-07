@@ -29,7 +29,7 @@
     <string id="30028">Tags</string>
     <!-- Context menu -->
     <string id="30030">Show Album info</string>
-    <string id="30031">Show song info</string>
+    <string id="30031">Show Song info</string>
     <string id="30032">Show Songs in this Album</string>
     <string id="30033">Show Albums by this Artist</string>
     <string id="30034">Show similar Songs</string>
@@ -81,20 +81,20 @@
     <!-- Sort methods -->
     <string id="30100">Order: Default</string>
     <string id="30101">Order: Buzzrate</string>
-    <string id="30102">Order: Downloads (week)</string>
-    <string id="30103">Order: Downloads (month)</string>
-    <string id="30104">Order: Downloads (total)</string>
-    <string id="30105">Order: Joindate (asc)</string>
-    <string id="30107">Order: Joindate (desc)</string>
-    <string id="30108">Order: Listens (week)</string>
-    <string id="30109">Order: Listens (month)</string>
-    <string id="30110">Order: Listens (total)</string>
+    <string id="30102">Order: Downloads (Week)</string>
+    <string id="30103">Order: Downloads (Month)</string>
+    <string id="30104">Order: Downloads (Total)</string>
+    <string id="30105">Order: Joindate (ASC)</string>
+    <string id="30107">Order: Joindate (DESC)</string>
+    <string id="30108">Order: Listens (Week)</string>
+    <string id="30109">Order: Listens (Month)</string>
+    <string id="30110">Order: Listens (Total)</string>
     <string id="30111">Order: Name</string>
-    <string id="30112">Order: Popularity (week)</string>
-    <string id="30113">Order: Popularity (month)</string>
-    <string id="30114">Order: Popularity (total)</string>
-    <string id="30115">Order: Releasedate (asc)</string>
-    <string id="30116">Order: Releasedate (desc)</string>
+    <string id="30112">Order: Popularity (Week)</string>
+    <string id="30113">Order: Popularity (Month)</string>
+    <string id="30114">Order: Popularity (Total)</string>
+    <string id="30115">Order: Releasedate (ASC)</string>
+    <string id="30116">Order: Releasedate (DESC)</string>
     <!-- Settings -->
     <string id="30300">Max. Items per Page</string>
     <string id="30301">Force Thumbnail-View</string>
