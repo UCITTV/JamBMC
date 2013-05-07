@@ -89,8 +89,10 @@ class JamendoDownloader(object):
         return downloaded_tracks
 
     def download_album(self, album_id, audioformat, include_cover=True):
+        downloaded_album = {}
         downloaded_tracks = {}
         self._update_progress(2)
+        album = self.api.get_album(album_id=album_id)
         tracks = self.api.get_tracks(
             filter_dict={'album_id': album_id},
             audioformat=audioformat
@@ -98,9 +100,9 @@ class JamendoDownloader(object):
         self._update_progress(10)
         any_track = tracks[0]
         sub_dir = '%(artist)s - %(album)s [%(year)s]' % {
-            'artist': any_track['artist_name'].encode('ascii', 'ignore'),
-            'album': any_track['album_name'].encode('ascii', 'ignore'),
-            'year': any_track.get('releasedate', '0-0-0').split('-')[0],
+            'artist': album['artist_name'].encode('ascii', 'ignore'),
+            'album': album['name'].encode('ascii', 'ignore'),
+            'year': album.get('releasedate', '0-0-0').split('-')[0],
         }
         self.download_path = os.path.join(self.download_path, sub_dir)
         if not xbmcvfs.exists(self.download_path):
@@ -133,7 +135,11 @@ class JamendoDownloader(object):
             percent = 10 + 90 / len(tracks) * (i + 1)
             self._update_progress(percent)
         self._update_progress(100)
-        return downloaded_tracks
+        downloaded_album[album['id']] = {
+            'data': album,
+            'tracks': downloaded_tracks
+        }
+        return downloaded_album
 
     def _download_item(self, url, filename):
         log('Downloading "%s" to "%s"' % (url, filename))

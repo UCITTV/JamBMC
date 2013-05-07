@@ -183,9 +183,15 @@ class JamendoApi():
 
     def get_track(self, track_id, audioformat=None):
         tracks = self.get_tracks(
-            filter_dict={'id': track_id}, audioformat=audioformat
+            ids=[track_id], audioformat=audioformat
         )
         return tracks[0]
+
+    def get_album(self, album_id):
+        albums = self.get_albums(
+            ids=[album_id]
+        )
+        return albums[0]
 
     def get_track_url(self, track_id, audioformat=None):
         path = 'tracks/file'

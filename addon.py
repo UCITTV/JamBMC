@@ -38,7 +38,7 @@ STRINGS = {
     'search_artists': 30009,
     'search_playlists': 30010,
     'show_history': 30011,
-    'show_downloads': 30012,
+    'show_downloaded_tracks': 30012,
     'show_mixtapes': 30013,
     'show_featured_tracks': 30014,
     'show_user_artists': 30015,
@@ -47,6 +47,7 @@ STRINGS = {
     'show_user_account': 30018,
     'show_user_playlists': 30019,
     'show_near_artists': 30020,
+    'show_downloaded_albums': 30021,
     # Misc strings
     'page': 30025,
     'language': 30026,
@@ -156,8 +157,10 @@ def root_menu():
          'path': plugin.url_for(endpoint='show_radios')},
         {'label': _('show_history'),
          'path': plugin.url_for(endpoint='show_history')},
-        {'label': _('show_downloads'),
-         'path': plugin.url_for(endpoint='show_downloads')},
+        {'label': _('show_downloaded_tracks'),
+         'path': plugin.url_for(endpoint='show_downloaded_tracks')},
+        {'label': _('show_downloaded_albums'),
+         'path': plugin.url_for(endpoint='show_downloaded_albums')},
         {'label': _('show_mixtapes'),
          'path': plugin.url_for(endpoint='show_mixtapes')},
         {'label': _('show_featured_tracks'),
@@ -457,13 +460,32 @@ def show_history():
 
 
 @plugin.route('/downloads/tracks/')
-def show_downloads():
+def show_downloaded_tracks():
     downloads = plugin.get_storage('downloaded_tracks')
     if downloads.items():
         tracks = [t['data'] for t in downloads.itervalues()]
         items = format_tracks(tracks)
         return add_items(items)
     plugin.notify(_('downloads_empty'))
+
+
+@plugin.route('/downloads/albums/')
+def show_downloaded_albums():
+    downloads = plugin.get_storage('downloaded_albums')
+    if downloads.items():
+        albums = [t['data'] for t in downloads.itervalues()]
+        items = format_downloaded_albums(albums)
+        return add_items(items)
+    plugin.notify(_('downloads_empty'))
+
+
+@plugin.route('/downloads/albums/<album_id>/')
+def show_downloaded_album_tracks(album_id):
+    downloads = plugin.get_storage('downloaded_albums')
+    album = downloads[album_id]
+    tracks = [t['data'] for t in album['tracks'].itervalues()]
+    items = format_tracks(tracks)
+    return add_items(items)
 
 
 @plugin.route('/mixtapes/')
@@ -572,12 +594,7 @@ def show_sort_methods(entity):
 @plugin.route('/play/track/<track_id>')
 def play_track(track_id):
     add_track_to_history(track_id)
-    downloaded_tracks = plugin.get_storage('downloaded_tracks')
-    track_url = None
-    if track_id in downloaded_tracks:
-        if xbmcvfs.exists(downloaded_tracks[track_id]['file']):
-            log('Track is already downloaded, playing local')
-            track_url = downloaded_tracks[track_id]['file']
+    track_url = get_downloaded_track(track_id)
     if not track_url:
         formats = ('mp3', 'ogg')
         audioformat = plugin.get_setting('playback_format', choices=formats)
@@ -613,11 +630,11 @@ def download_album(album_id):
     formats = ('mp3', 'ogg', 'flac')
     audioformat = plugin.get_setting('download_format', choices=formats)
     include_cover = plugin.get_setting('download_album_cover', bool)
-    tracks = downloader.download_album(album_id, audioformat, include_cover)
-    if tracks:
-        downloaded_tracks = plugin.get_storage('downloaded_tracks')
-        downloaded_tracks.update(tracks)
-        downloaded_tracks.sync()
+    album = downloader.download_album(album_id, audioformat, include_cover)
+    if album:
+        downloaded_albums = plugin.get_storage('downloaded_albums')
+        downloaded_albums.update(album)
+        downloaded_albums.sync()
         plugin.notify(msg=_('download_suceeded'))
 
 
@@ -634,23 +651,15 @@ def open_settings():
 
 def format_tracks(tracks):
     plugin.set_content('songs')
-
-    downloaded_tracks = plugin.get_storage('downloaded_tracks')
-
-    def mark(label, track_id):
-        if track_id in downloaded_tracks.keys():
-            return u'[I]%s[/I]' % label
-        return label
-
     items = [{
         'label': u'%s - %s (%s)' % (
             track['artist_name'],
-            mark(track['name'], track['id']),
+            track['name'],
             track['album_name']
         ),
         'info': {
             'count': i + 2,
-            'title': mark(track['name'], track['id']),
+            'title': track['name'],
             'album': track['album_name'],
             'duration': track['duration'],
             'artist': track['artist_name'],
@@ -692,6 +701,30 @@ def format_albums(albums):
         'thumbnail': album['image'],
         'path': plugin.url_for(
             endpoint='show_tracks_in_album',
+            album_id=album['id']
+        )
+    } for i, album in enumerate(albums)]
+    return items
+
+
+def format_downloaded_albums(albums):
+    plugin.set_content('albums')
+    items = [{
+        'label': u'%s - %s' % (album['artist_name'], album['name']),
+        'info': {
+            'count': i + 2,
+            'artist': album['artist_name'],
+            'album': album['name'],
+            'year': int(album.get('releasedate', '0-0-0').split('-')[0]),
+        },
+        'context_menu': album_context_menu(
+            artist_id=album['artist_id'],
+            album_id=album['id'],
+        ),
+        'replace_context_menu': True,
+        'thumbnail': album['image'],
+        'path': plugin.url_for(
+            endpoint='show_downloaded_album_tracks',
             album_id=album['id']
         )
     } for i, album in enumerate(albums)]
@@ -1115,6 +1148,20 @@ def add_track_to_history(track_id):
 def get_tracks_from_history():
     history = plugin.get_storage('history')
     return history.get('items', [])
+
+
+def get_downloaded_track(track_id):
+    tracks = plugin.get_storage('downloaded_tracks')
+    if track_id in tracks:
+        if xbmcvfs.exists(tracks[track_id]['file']):
+            log('Track is already downloaded, playing local')
+            return tracks[track_id]['file']
+    albums = plugin.get_storage('downloaded_albums')
+    for album in albums.itervalues():
+        if track_id in album['tracks']:
+            if xbmcvfs.exists(album['tracks'][track_id]['file']):
+                log('Album is already downloaded, playing local')
+                return album['tracks'][track_id]['file']
 
 
 def log(text):
