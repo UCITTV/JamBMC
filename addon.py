@@ -165,7 +165,7 @@ def root_menu():
         {'label': _('show_user_account'),
          'path': plugin.url_for(endpoint='show_user_account')},
     ]
-    return plugin.finish(items)
+    return add_static_items(items)
 
 
 @plugin.route('/search/')
@@ -180,7 +180,7 @@ def search_root():
         {'label': _('search_playlists'),
          'path': plugin.url_for(endpoint='search_playlists')},
     ]
-    return plugin.finish(items)
+    return add_static_items(items)
 
 
 @plugin.route('/discover/')
@@ -197,7 +197,7 @@ def discover_root():
         {'label': _('show_near_artists'),
          'path': plugin.url_for(endpoint='show_near_artists')},
     ]
-    return plugin.finish(items)
+    return add_static_items(items)
 
 
 @plugin.route('/albums/')
@@ -566,7 +566,7 @@ def del_track_from_mixtape(mixtape_id, track_id):
 def show_sort_methods(entity):
     sort_methods = api.get_sort_methods(entity)
     items = format_sort_methods(sort_methods, entity)
-    return plugin.finish(items, update_listing=True)
+    return add_items(items)
 
 
 @plugin.route('/play/track/<track_id>')
@@ -961,6 +961,17 @@ def add_items(items):
         'update_listing': is_update,
         'sort_methods': ('playlist_order', )
     }
+    if plugin.get_setting('force_viewmode', bool):
+        if any(i.get('thumbnail') for i in items):
+            finish_kwargs['view_mode'] = 'thumbnail'
+    return plugin.finish(items, **finish_kwargs)
+
+
+def add_static_items(items):
+    for item in items:
+        item['context_menu'] = empty_context_menu()
+        item['replace_context_menu'] = True
+    finish_kwargs = {}
     if plugin.get_setting('force_viewmode', bool):
         if any(i.get('thumbnail') for i in items):
             finish_kwargs['view_mode'] = 'thumbnail'
