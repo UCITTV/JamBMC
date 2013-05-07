@@ -402,7 +402,7 @@ def show_user_account():
         {'label': _('show_user_playlists'),
          'path': plugin.url_for(endpoint='show_user_playlists')},
     ]
-    return add_items(items)
+    return add_static_items(items)
 
 
 @plugin.route('/user/artists/')
@@ -892,6 +892,8 @@ def sort_method_switcher_item(entity):
     current_method = args_get('sort_method') or 'default'
     return {
         'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
+        'context_menu': empty_context_menu(),
+        'replace_context_menu': True,
         'info': {
             'count': 0,
         },
@@ -917,6 +919,8 @@ def pagination_items(items_len):
         extra_params['page'] = next_page
         items.append({
             'label': u'>> %s %d >>' % (_('page'), next_page),
+            'context_menu': empty_context_menu(),
+            'replace_context_menu': True,
             'info': {
                 'count': items_len + 2,
             },
@@ -931,6 +935,8 @@ def pagination_items(items_len):
         extra_params['page'] = previous_page
         items.append({
             'label': u'<< %s %d <<' % (_('page'), previous_page),
+            'context_menu': empty_context_menu(),
+            'replace_context_menu': True,
             'info': {
                 'count': 1,
             },
@@ -946,6 +952,8 @@ def pagination_items(items_len):
 def new_mixtape_item():
     return {
         'label': u'[B]%s[/B]' % _('add_new_mixtape'),
+        'context_menu': empty_context_menu(),
+        'replace_context_menu': True,
         'info': {
             'count': 0,
         },
