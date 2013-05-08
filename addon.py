@@ -150,23 +150,32 @@ api = JamendoApi(
 def root_menu():
     items = [
         {'label': _('discover'),
-         'path': plugin.url_for(endpoint='discover_root')},
+         'path': plugin.url_for(endpoint='discover_root'),
+         'thumbnail': 'DefaultMusicCompilations.png'},
         {'label': _('search'),
-         'path': plugin.url_for(endpoint='search_root')},
+         'path': plugin.url_for(endpoint='search_root'),
+         'thumbnail': 'DefaultMusicVideos.png'},
         {'label': _('show_radios'),
-         'path': plugin.url_for(endpoint='show_radios')},
+         'path': plugin.url_for(endpoint='show_radios'),
+         'thumbnail': 'DefaultMusicGenres.png'},
         {'label': _('show_history'),
-         'path': plugin.url_for(endpoint='show_history')},
+         'path': plugin.url_for(endpoint='show_history'),
+         'thumbnail': 'DefaultMusicYears.png'},
         {'label': _('show_downloaded_tracks'),
-         'path': plugin.url_for(endpoint='show_downloaded_tracks')},
+         'path': plugin.url_for(endpoint='show_downloaded_tracks'),
+         'thumbnail': 'DefaultMusicPlaylists.png'},
         {'label': _('show_downloaded_albums'),
-         'path': plugin.url_for(endpoint='show_downloaded_albums')},
+         'path': plugin.url_for(endpoint='show_downloaded_albums'),
+         'thumbnail': 'DefaultMusicPlaylists.png'},
         {'label': _('show_mixtapes'),
-         'path': plugin.url_for(endpoint='show_mixtapes')},
+         'path': plugin.url_for(endpoint='show_mixtapes'),
+         'thumbnail': 'DefaultMusicSongs.png'},
         {'label': _('show_featured_tracks'),
-         'path': plugin.url_for(endpoint='show_featured_tracks')},
+         'path': plugin.url_for(endpoint='show_featured_tracks'),
+         'thumbnail': 'DefaultMusicAlbums.png'},
         {'label': _('show_user_account'),
-         'path': plugin.url_for(endpoint='show_user_account')},
+         'path': plugin.url_for(endpoint='user_root'),
+         'thumbnail': 'DefaultAddonMusic.png'},
     ]
     return add_static_items(items)
 
@@ -175,13 +184,17 @@ def root_menu():
 def search_root():
     items = [
         {'label': _('search_tracks'),
-         'path': plugin.url_for(endpoint='search_tracks')},
+         'path': plugin.url_for(endpoint='search_tracks'),
+         'thumbnail': 'DefaultMusicSongs.png'},
         {'label': _('search_albums'),
-         'path': plugin.url_for(endpoint='search_albums')},
+         'path': plugin.url_for(endpoint='search_albums'),
+         'thumbnail': 'DefaultMusicAlbums.png'},
         {'label': _('search_artists'),
-         'path': plugin.url_for(endpoint='search_artists')},
+         'path': plugin.url_for(endpoint='search_artists'),
+         'thumbnail': 'DefaultMusicArtists.png'},
         {'label': _('search_playlists'),
-         'path': plugin.url_for(endpoint='search_playlists')},
+         'path': plugin.url_for(endpoint='search_playlists'),
+         'thumbnail': 'DefaultMusicPlaylists.png'},
     ]
     return add_static_items(items)
 
@@ -190,15 +203,39 @@ def search_root():
 def discover_root():
     items = [
         {'label': _('show_tracks'),
-         'path': plugin.url_for(endpoint='show_tracks')},
+         'path': plugin.url_for(endpoint='show_tracks'),
+         'thumbnail': 'DefaultMusicSongs.png'},
         {'label': _('show_albums'),
-         'path': plugin.url_for(endpoint='show_albums')},
+         'path': plugin.url_for(endpoint='show_albums'),
+         'thumbnail': 'DefaultMusicAlbums.png'},
         {'label': _('show_artists'),
-         'path': plugin.url_for(endpoint='show_artists')},
+         'path': plugin.url_for(endpoint='show_artists'),
+         'thumbnail': 'DefaultMusicArtists.png'},
         {'label': _('show_playlists'),
-         'path': plugin.url_for(endpoint='show_playlists')},
+         'path': plugin.url_for(endpoint='show_playlists'),
+         'thumbnail': 'DefaultMusicPlaylists.png'},
         {'label': _('show_near_artists'),
-         'path': plugin.url_for(endpoint='show_near_artists')},
+         'path': plugin.url_for(endpoint='show_near_artists'),
+         'thumbnail': 'DefaultMusicArtists.png'},
+    ]
+    return add_static_items(items)
+
+
+@plugin.route('/user/')
+def user_root():
+    items = [
+        {'label': _('show_user_artists'),
+         'path': plugin.url_for(endpoint='show_user_artists'),
+         'thumbnail': 'DefaultMusicArtists.png'},
+        {'label': _('show_user_albums'),
+         'path': plugin.url_for(endpoint='show_user_albums'),
+         'thumbnail': 'DefaultMusicAlbums.png'},
+        {'label': _('show_user_tracks'),
+         'path': plugin.url_for(endpoint='show_user_tracks'),
+         'thumbnail': 'DefaultMusicSongs.png'},
+        {'label': _('show_user_playlists'),
+         'path': plugin.url_for(endpoint='show_user_playlists'),
+         'thumbnail': 'DefaultMusicPlaylists.png'},
     ]
     return add_static_items(items)
 
@@ -383,8 +420,7 @@ def set_user_account():
                 plugin.set_setting('user_id', user['id'])
 
 
-@plugin.route('/user/')
-def show_user_account():
+def get_user_account():
     user_id = plugin.get_setting('user_id', str)
     while not user_id:
         try_again = xbmcgui.Dialog().yesno(
@@ -395,22 +431,12 @@ def show_user_account():
             return
         set_user_account()
         user_id = plugin.get_setting('user_id', str)
-    items = [
-        {'label': _('show_user_artists'),
-         'path': plugin.url_for(endpoint='show_user_artists')},
-        {'label': _('show_user_albums'),
-         'path': plugin.url_for(endpoint='show_user_albums')},
-        {'label': _('show_user_tracks'),
-         'path': plugin.url_for(endpoint='show_user_tracks')},
-        {'label': _('show_user_playlists'),
-         'path': plugin.url_for(endpoint='show_user_playlists')},
-    ]
-    return add_static_items(items)
+    return user_id
 
 
 @plugin.route('/user/artists/')
 def show_user_artists():
-    user_id = plugin.get_setting('user_id', str)
+    user_id = get_user_account()
     if user_id:
         page = int(args_get('page', 1))
         artists = api.get_user_artists(user_id=user_id, page=page)
@@ -421,7 +447,7 @@ def show_user_artists():
 
 @plugin.route('/user/albums/')
 def show_user_albums():
-    user_id = plugin.get_setting('user_id', str)
+    user_id = get_user_account()
     if user_id:
         page = int(args_get('page', 1))
         albums = api.get_user_albums(user_id=user_id, page=page)
@@ -432,7 +458,7 @@ def show_user_albums():
 
 @plugin.route('/user/tracks/')
 def show_user_tracks():
-    user_id = plugin.get_setting('user_id', str)
+    user_id = get_user_account()
     if user_id:
         page = int(args_get('page', 1))
         tracks = api.get_user_tracks(user_id=user_id, page=page)
@@ -443,7 +469,7 @@ def show_user_tracks():
 
 @plugin.route('/user/playlists/')
 def show_user_playlists():
-    user_id = plugin.get_setting('user_id', str)
+    user_id = get_user_account()
     if user_id:
         playlists = api.get_playlists(user_id=user_id)
         items = format_playlists(playlists)
@@ -1012,11 +1038,7 @@ def add_static_items(items):
     for item in items:
         item['context_menu'] = empty_context_menu()
         item['replace_context_menu'] = True
-    finish_kwargs = {}
-    if plugin.get_setting('force_viewmode', bool):
-        if any(i.get('thumbnail') for i in items):
-            finish_kwargs['view_mode'] = 'thumbnail'
-    return plugin.finish(items, **finish_kwargs)
+    return plugin.finish(items)
 
 
 def empty_context_menu():
