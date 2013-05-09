@@ -614,7 +614,7 @@ def del_track_from_mixtape(mixtape_id, track_id):
 def show_sort_methods(entity):
     sort_methods = api.get_sort_methods(entity)
     items = format_sort_methods(sort_methods, entity)
-    return add_items(items)
+    return add_static_items(items)
 
 
 @plugin.route('/play/track/<track_id>')
@@ -898,6 +898,7 @@ def format_similar_tracks(tracks):
 def format_sort_methods(sort_methods, entity):
     items = [{
         'label': _('sort_method_%s' % sort_method),
+        'thumbnail': 'DefaultMusicPlugins.png',
         'info': {
             'count': i,
         },
@@ -951,6 +952,7 @@ def get_sort_method_switcher_item(entity):
     current_method = get_args('sort_method') or 'default'
     return {
         'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
+        'thumbnail': 'DefaultMusicPlugins.png',
         'context_menu': context_menu_empty(),
         'replace_context_menu': True,
         'info': {
