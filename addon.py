@@ -572,7 +572,7 @@ def add_del_track_to_mixtape(track_id):
         _('select_mixtape'), [i['label'] for i in items]
     )
     if selected == 0:
-        mixtape_id = new_mixtape(return_name=True)
+        mixtape_id = add_mixtape(return_name=True)
         if mixtape_id:
             add_track_to_mixtape(mixtape_id, track_id)
     elif selected > 0:
