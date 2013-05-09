@@ -523,7 +523,7 @@ def show_mixtapes():
     mixtapes = plugin.get_storage('mixtapes')
     items = format_mixtapes(mixtapes)
     items.append(get_add_mixtape_item())
-    return add_items(items)
+    return add_static_items(items)
 
 
 @plugin.route('/mixtapes/new')
