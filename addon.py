@@ -1042,7 +1042,10 @@ def add_static_items(items):
     for item in items:
         item['context_menu'] = context_menu_empty()
         item['replace_context_menu'] = True
-    return plugin.finish(items)
+    if 'is_update' in plugin.request.args:
+        return plugin.finish(items, update_listing=True)
+    else:
+        return plugin.finish(items)
 
 
 def context_menu_empty():
