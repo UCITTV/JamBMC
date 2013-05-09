@@ -558,13 +558,13 @@ def add_del_track_to_mixtape(track_id):
         track_ids = [t['id'] for t in mixtape]
         if track_id in track_ids:
             items.append({
-                'label': _('del_from_mixtape_s') % mixtape_id,
+                'label': _('del_from_mixtape_s') % mixtape_id.decode('utf-8'),
                 'action': 'del',
                 'mixtape_id': mixtape_id
             })
         else:
             items.append({
-                'label': _('add_to_mixtape_s') % mixtape_id,
+                'label': _('add_to_mixtape_s') % mixtape_id.decode('utf-8'),
                 'action': 'add',
                 'mixtape_id': mixtape_id
             })
@@ -1029,8 +1029,7 @@ def add_items(items):
         'sort_methods': ('playlist_order', )
     }
     if plugin.get_setting('force_viewmode', bool):
-        if any(i.get('thumbnail') for i in items):
-            finish_kwargs['view_mode'] = 'thumbnail'
+        finish_kwargs['view_mode'] = 'thumbnail'
     return plugin.finish(items, **finish_kwargs)
 
 
