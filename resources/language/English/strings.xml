@@ -19,7 +19,7 @@
     <string id="30015">Artists you are fan of</string>
     <string id="30016">Albums in your My-Albums-list</string>
     <string id="30017">Songs you like or favorite</string>
-    <string id="30018">Your Jamendo.com User-Account</string>
+    <string id="30018">Your Jamendo User-Account</string>
     <string id="30019">Your public Playlists</string>
     <string id="30020">Show Artists near your Location</string>
     <string id="30021">Your Downloaded Albums</string>
@@ -44,7 +44,7 @@
     <string id="30043">Enter Playlist title</string>
     <string id="30044">No Download Path</string>
     <string id="30045">Do you want to set it now?</string>
-    <string id="30046">Jamendo Download Path</string>
+    <string id="30046">JamBMC Download Path</string>
     <string id="30047">Enter your username</string>
     <string id="30048">Select user</string>
     <string id="30049">No username set</string>
@@ -63,7 +63,7 @@
     <string id="30071">No item in History</string>
     <string id="30072">No items downloaded</string>
     <!-- Download -->
-    <string id="30080">Jamendo Downloader</string>
+    <string id="30080">JamBMC Downloader</string>
     <string id="30081">Preparing download...</string>
     <string id="30082">Downloading to: %s</string>
     <string id="30083">Current Progress: %s MB</string>
@@ -112,7 +112,7 @@
     <string id="30313">Download Cover (Albums)</string>
     <string id="30314">Show Progress Dialog while downloading (Albums)</string>
     <string id="30315">Download Path (Albums)</string>
-    <string id="30316">Your Jamendo.com Username</string>
+    <string id="30316">Your Jamendo Username</string>
     <!-- Setting categories and labels -->
     <string id="30350">GUI</string>
     <string id="30351">Download</string>
