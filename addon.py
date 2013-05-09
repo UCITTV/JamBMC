@@ -246,7 +246,7 @@ def show_albums():
     sort_method = get_args('sort_method', 'popularity_month')
     albums = api.get_albums(page=page, sort_method=sort_method)
     items = format_albums(albums)
-    items.append(get_sort_method_switcher_item('albums'))
+    items.append(get_sort_method_switcher_item('albums', sort_method))
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
 
@@ -297,7 +297,7 @@ def show_artists():
     sort_method = get_args('sort_method', 'popularity_month')
     artists = api.get_artists(page=page, sort_method=sort_method)
     items = format_artists(artists)
-    items.append(get_sort_method_switcher_item('artists'))
+    items.append(get_sort_method_switcher_item('artists', sort_method))
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
 
@@ -328,7 +328,7 @@ def show_tracks():
     sort_method = get_args('sort_method', 'popularity_month')
     tracks = api.get_tracks(page=page, sort_method=sort_method)
     items = format_tracks(tracks)
-    items.append(get_sort_method_switcher_item('tracks'))
+    items.append(get_sort_method_switcher_item('tracks', sort_method))
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
 
@@ -948,8 +948,7 @@ def format_comment(musicinfo):
     ))
 
 
-def get_sort_method_switcher_item(entity):
-    current_method = get_args('sort_method') or 'default'
+def get_sort_method_switcher_item(entity, current_method='default'):
     return {
         'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
         'thumbnail': 'DefaultMusicPlugins.png',
