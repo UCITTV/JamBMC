@@ -20,7 +20,7 @@
 import xbmcvfs  # FIXME: Import form xbmcswift if fixed upstream
 from xbmcswift2 import Plugin, xbmcgui, NotFoundException
 from resources.lib.api import JamendoApi, ApiError, ConnectionError
-from resources.lib.geolocate import locate_me, QuotaReached
+from resources.lib.geolocate import get_location, QuotaReached
 from resources.lib.downloader import JamendoDownloader
 
 
@@ -383,7 +383,7 @@ def show_featured_tracks():
     return add_items(items)
 
 
-@plugin.route('/artists/near_me/')
+@plugin.route('/artists/near/')
 def show_near_artists():
     lat_long = plugin.get_setting('lat_long', str)
     while not lat_long:
@@ -395,7 +395,7 @@ def show_near_artists():
         )
         if not confirmed:
             return
-        location = locate_me()
+        location = get_location()
         lat_long = '%s_%s' % (location['latitude'], location['longitude'])
         plugin.set_setting('lat_long', lat_long)
     artists = api.get_artists_by_location(coords=lat_long)

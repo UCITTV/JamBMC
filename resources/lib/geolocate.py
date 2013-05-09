@@ -24,7 +24,7 @@ class QuotaReached(Exception):
     pass
 
 
-def locate_me():
+def get_location():
     url = 'http://freegeoip.net/json/'
     request = requests.get(url)
     json_data = request.json()
