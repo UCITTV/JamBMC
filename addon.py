@@ -244,7 +244,7 @@ def show_user_root():
 def show_albums():
     page = int(get_args('page', 1))
     sort_method = get_args('sort_method', 'popularity_month')
-    albums = api.get_albums(page=page, sort_method=sort_method)
+    albums = get_cached(api.get_albums, page=page, sort_method=sort_method)
     items = format_albums(albums)
     items.append(get_sort_method_switcher_item('albums', sort_method))
     items.extend(get_page_switcher_items(len(items)))
@@ -257,7 +257,7 @@ def search_albums():
         heading=_('search_heading_album')
     )
     if query:
-        albums = api.get_albums(search_terms=query)
+        albums = get_cached(api.get_albums, search_terms=query)
         items = format_albums(albums)
         return add_items(items)
 
@@ -265,7 +265,7 @@ def search_albums():
 @plugin.route('/albums/<artist_id>/')
 def show_albums_by_artist(artist_id):
     page = int(get_args('page', 1))
-    albums = api.get_albums(page=page, artist_id=artist_id)
+    albums = get_cached(api.get_albums, page=page, artist_id=artist_id)
     items = format_albums(albums)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
@@ -274,7 +274,7 @@ def show_albums_by_artist(artist_id):
 @plugin.route('/playlists/')
 def show_playlists():
     page = int(get_args('page', 1))
-    playlists = api.get_playlists(page=page)
+    playlists = get_cached(api.get_playlists, page=page)
     items = format_playlists(playlists)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
@@ -295,7 +295,7 @@ def search_playlists():
 def show_artists():
     page = int(get_args('page', 1))
     sort_method = get_args('sort_method', 'popularity_month')
-    artists = api.get_artists(page=page, sort_method=sort_method)
+    artists = get_cached(api.get_artists, page=page, sort_method=sort_method)
     items = format_artists(artists)
     items.append(get_sort_method_switcher_item('artists', sort_method))
     items.extend(get_page_switcher_items(len(items)))
@@ -316,7 +316,7 @@ def search_artists():
 @plugin.route('/radios/')
 def show_radios():
     page = int(get_args('page', 1))
-    radios = api.get_radios(page=page)
+    radios = get_cached(api.get_radios, page=page)
     items = format_radios(radios)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
@@ -326,7 +326,7 @@ def show_radios():
 def show_tracks():
     page = int(get_args('page', 1))
     sort_method = get_args('sort_method', 'popularity_month')
-    tracks = api.get_tracks(page=page, sort_method=sort_method)
+    tracks = get_cached(api.get_tracks, page=page, sort_method=sort_method)
     items = format_tracks(tracks)
     items.append(get_sort_method_switcher_item('tracks', sort_method))
     items.extend(get_page_switcher_items(len(items)))
@@ -346,7 +346,7 @@ def search_tracks():
 
 @plugin.route('/tracks/album/<album_id>/')
 def show_tracks_in_album(album_id):
-    tracks = api.get_tracks(filter_dict={'album_id': album_id})
+    tracks = get_cached(api.get_tracks, filter_dict={'album_id': album_id})
     items = format_tracks(tracks)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
@@ -354,7 +354,10 @@ def show_tracks_in_album(album_id):
 
 @plugin.route('/tracks/playlist/<playlist_id>/')
 def show_tracks_in_playlist(playlist_id):
-    playlist, tracks = api.get_playlist_tracks(playlist_id=playlist_id)
+    playlist, tracks = get_cached(
+        api.get_playlist_tracks,
+        playlist_id=playlist_id
+    )
     items = format_playlist_tracks(playlist, tracks)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
@@ -363,7 +366,7 @@ def show_tracks_in_playlist(playlist_id):
 @plugin.route('/tracks/similar/<track_id>/')
 def show_similar_tracks(track_id):
     page = int(get_args('page', 1))
-    tracks = api.get_similar_tracks(track_id=track_id, page=page)
+    tracks = get_cached(api.get_similar_tracks, track_id=track_id, page=page)
     items = format_similar_tracks(tracks)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
@@ -373,7 +376,8 @@ def show_similar_tracks(track_id):
 def show_featured_tracks():
     page = int(get_args('page', 1))
     sort_method = 'releasedate_desc'
-    tracks = api.get_tracks(
+    tracks = get_cached(
+        api.get_tracks,
         page=page,
         sort_method=sort_method,
         filter_dict={'featured': 1}
@@ -398,7 +402,7 @@ def show_near_artists():
         location = get_location()
         lat_long = '%s_%s' % (location['latitude'], location['longitude'])
         plugin.set_setting('lat_long', lat_long)
-    artists = api.get_artists_by_location(coords=lat_long)
+    artists = get_cached(api.get_artists_by_location, coords=lat_long)
     items = format_artists_location(artists)
     return add_items(items)
 
@@ -595,7 +599,7 @@ def show_mixtape(mixtape_id):
 @plugin.route('/mixtapes/<mixtape_id>/add/<track_id>')
 def add_track_to_mixtape(mixtape_id, track_id):
     mixtapes = plugin.get_storage('mixtapes')
-    track = api.get_track(track_id)
+    track = get_cached(api.get_track, track_id)
     mixtapes[mixtape_id].append(track)
     mixtapes.sync()
 
@@ -612,7 +616,7 @@ def del_track_from_mixtape(mixtape_id, track_id):
 
 @plugin.route('/sort_methods/<entity>/')
 def show_sort_methods(entity):
-    sort_methods = api.get_sort_methods(entity)
+    sort_methods = get_cached(api.get_sort_methods, entity)
     items = format_sort_methods(sort_methods, entity)
     return add_static_items(items)
 
@@ -1126,6 +1130,13 @@ def get_args(arg_name, default=None):
     return plugin.request.args.get(arg_name, [default])[0]
 
 
+def get_cached(func, *args, **kwargs):
+    @plugin.cached(kwargs.pop('TTL', 1440))
+    def wrap(func_name, *args, **kwargs):
+        return func(*args, **kwargs)
+    return wrap(func.__name__, *args, **kwargs)
+
+
 def get_download_path(setting_name):
     download_path = plugin.get_setting(setting_name, str)
     while not download_path:
@@ -1160,7 +1171,7 @@ def add_track_to_history(track_id):
     if not 'items' in history:
         history['items'] = []
     if not track_id in [t['id'] for t in history['items']]:
-        track = api.get_track(track_id)
+        track = get_cached(api.get_track, track_id)
         history['items'].append(track)
         while len(history['items']) > history_limit:
             history['items'].pop(0)
