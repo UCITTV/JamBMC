@@ -1163,9 +1163,7 @@ def image_helper(url):
         # fix whitespace in some image urls
         return url.replace(' ', '%20')
     else:
-        addon_id = plugin._addon.getAddonInfo('id')
-        icon = 'special://home/addons/%s/icon.png' % addon_id
-        return icon
+        return 'DefaultActor.png'
 
 
 def add_track_to_history(track_id):
