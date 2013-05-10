@@ -380,7 +380,7 @@ def show_featured_tracks():
         api.get_tracks,
         page=page,
         sort_method=sort_method,
-        filter_dict={'featured': 1}
+        featured=True
     )
     items = format_tracks(tracks)
     items.extend(get_page_switcher_items(len(items)))
