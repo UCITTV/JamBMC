@@ -128,7 +128,7 @@ class JamendoApi():
         return artists
 
     def get_tracks(self, page=1, sort_method=None, filter_dict=None,
-                   audioformat=None, ids=None):
+                   audioformat=None, album_id=None, ids=None):
         path = 'tracks'
         params = {
             'limit': self._limit,
@@ -140,6 +140,8 @@ class JamendoApi():
             params['order'] = sort_method
         if filter_dict:
             params.update(filter_dict)
+        if album_id:
+            params['album_id'] = album_id
         if ids:
             params['id'] = '+'.join(ids)
         tracks = self._api_call(path, params)

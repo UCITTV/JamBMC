@@ -346,7 +346,7 @@ def search_tracks():
 
 @plugin.route('/tracks/album/<album_id>/')
 def show_tracks_in_album(album_id):
-    tracks = get_cached(api.get_tracks, filter_dict={'album_id': album_id})
+    tracks = get_cached(api.get_tracks, album_id=album_id)
     items = format_tracks(tracks)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
