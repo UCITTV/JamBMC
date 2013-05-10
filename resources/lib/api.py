@@ -46,6 +46,11 @@ AUDIO_FORMATS = {
 USER_TRACK_RELATIONS = (
     'like', 'favorite', 'review'
 )
+IMAGE_SIZES = {
+    'big': '600',
+    'medium': '400',
+    'small': '200',
+}
 
 
 class AuthError(Exception):
@@ -63,17 +68,18 @@ class ConnectionError(Exception):
 class JamendoApi():
 
     def __init__(self, client_id, use_https=True, limit=100,
-                 audioformat=None):
+                 audioformat=None, image_size=None):
         self._client_id = client_id
         self._use_https = bool(use_https)
         self._audioformat = AUDIO_FORMATS.get(audioformat, 'mp32')
         self._limit = min(int(limit), 100)
+        self._image_size = IMAGE_SIZES.get(image_size, '400')
 
     def get_albums(self, page=1, artist_id=None, sort_method=None,
                    search_terms=None, ids=None):
         path = 'albums'
         params = {
-            'imagesize': 400,
+            'imagesize': self._image_size,
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
         }
@@ -135,6 +141,7 @@ class JamendoApi():
             'offset': self._limit * (int(page) - 1),
             'include': 'musicinfo',
             'audioformat': AUDIO_FORMATS.get(audioformat) or self._audioformat,
+            'imagesize': self._image_size,
         }
         if sort_method:
             params['order'] = sort_method
@@ -174,7 +181,7 @@ class JamendoApi():
             'id': track_id,
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
-            'imagesize': 400,
+            'imagesize': self._image_size,
         }
         tracks = self._api_call(path, params)
         return tracks
@@ -231,7 +238,6 @@ class JamendoApi():
         params = {
             'id': user_id,
             'relation': 'fan',
-            'imagesize': 100,
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
         }
@@ -260,7 +266,6 @@ class JamendoApi():
         params = {
             'id': user_id,
             'relation': '+'.join(relations or USER_TRACK_RELATIONS),
-            'imagesize': 100,
             'limit': self._limit,
             'offset': self._limit * (int(page) - 1),
         }

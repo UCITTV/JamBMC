@@ -113,6 +113,10 @@
     <string id="30314">Show Progress Dialog while downloading (Albums)</string>
     <string id="30315">Download Path (Albums)</string>
     <string id="30316">Your Jamendo Username</string>
+    <string id="30317">Image Sizes</string>
+    <string id="30318">Big</string>
+    <string id="30319">Medium</string>
+    <string id="30320">Small</string>
     <!-- Setting categories and labels -->
     <string id="30350">GUI</string>
     <string id="30351">Download</string>

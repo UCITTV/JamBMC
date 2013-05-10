@@ -142,7 +142,11 @@ class Plugin_patched(Plugin):
 plugin = Plugin_patched()
 api = JamendoApi(
     client_id='de0f381a',
-    limit=plugin.get_setting('limit', int)
+    limit=plugin.get_setting('limit', int),
+    image_size=plugin.get_setting(
+        'image_size',
+        choices=('big', 'medium', 'small')
+    ),
 )
 
 
