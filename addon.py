@@ -281,7 +281,7 @@ def show_playlists():
     playlists = get_cached(api.get_playlists, page=page)
     items = format_playlists(playlists)
     items.extend(get_page_switcher_items(len(items)))
-    return add_items(items)
+    return add_items(items, same_cover=True)
 
 
 @plugin.route('/playlists/search/')
@@ -292,7 +292,7 @@ def search_playlists():
     if query:
         playlists = api.get_playlists(search_terms=query)
         items = format_playlists(playlists)
-        return add_items(items)
+        return add_items(items, same_cover=True)
 
 
 @plugin.route('/artists/')
@@ -353,7 +353,7 @@ def show_tracks_in_album(album_id):
     tracks = get_cached(api.get_tracks, album_id=album_id)
     items = format_tracks(tracks)
     items.extend(get_page_switcher_items(len(items)))
-    return add_items(items)
+    return add_items(items, same_cover=True)
 
 
 @plugin.route('/tracks/playlist/<playlist_id>/')
@@ -364,7 +364,7 @@ def show_tracks_in_playlist(playlist_id):
     )
     items = format_playlist_tracks(playlist, tracks)
     items.extend(get_page_switcher_items(len(items)))
-    return add_items(items)
+    return add_items(items, same_cover=True)
 
 
 @plugin.route('/tracks/similar/<track_id>/')
@@ -481,7 +481,7 @@ def show_user_playlists():
     if user_id:
         playlists = api.get_playlists(user_id=user_id)
         items = format_playlists(playlists)
-        return add_items(items)
+        return add_items(items, same_cover=True)
 
 
 @plugin.route('/history/')
@@ -519,7 +519,7 @@ def show_downloaded_album_tracks(album_id):
     album = downloads[album_id]
     tracks = [t['data'] for t in album['tracks'].itervalues()]
     items = format_tracks(tracks)
-    return add_items(items)
+    return add_items(items, same_cover=True)
 
 
 @plugin.route('/mixtapes/')
@@ -1031,13 +1031,15 @@ def get_add_mixtape_item():
     }
 
 
-def add_items(items):
+def add_items(items, same_cover=False):
     is_update = 'is_update' in plugin.request.args
     finish_kwargs = {
         'update_listing': is_update,
         'sort_methods': ('playlist_order', )
     }
-    if plugin.get_setting('force_viewmode', bool):
+    if plugin.get_setting('force_viewmode', bool) and not same_cover:
+        finish_kwargs['view_mode'] = 'thumbnail'
+    elif plugin.get_setting('force_viewmode_tracks', bool) and same_cover:
         finish_kwargs['view_mode'] = 'thumbnail'
     return plugin.finish(items, **finish_kwargs)
 
