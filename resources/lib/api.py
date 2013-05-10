@@ -123,7 +123,7 @@ class JamendoApi():
         artists = self._api_call(path, params)
         return artists
 
-    def get_artists_by_location(self, coords, radius=20):
+    def get_artists_by_location(self, coords, radius=100):
         path = 'artists/locations'
         params = {
             'location_coords': coords,

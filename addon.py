@@ -403,7 +403,11 @@ def show_near_artists():
         )
         if not confirmed:
             return
-        location = get_location()
+        try:
+            location = get_location()
+        except QuotaReached:
+            plugin.notify(_('try_again_later'))
+            return
         lat_long = '%s_%s' % (location['latitude'], location['longitude'])
         plugin.set_setting('lat_long', lat_long)
     artists = get_cached(api.get_artists_by_location, coords=lat_long)
