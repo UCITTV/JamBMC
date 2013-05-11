@@ -16,7 +16,8 @@
         <forum></forum>
         <email>sphere@dersphere.de</email>
         <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-        <summary lang="en"></summary>
-        <description lang="en"></description>
+        <summary lang="en">The #1 platform for free music.</summary>
+        <description lang="en">With this add-on you can browse all content from Jamendo.com[CR]For full list of features have a look to the changelog.</description>
+        <disclaimer lang="en">This add-on was initially created to participate in the 2013 Jamendo App-Contest</disclaimer>
     </extension>
 </addon>
