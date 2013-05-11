@@ -12,7 +12,7 @@
         <language />
         <platform>all</platform>
         <website>http://www.jamendo.com/</website>
-        <source></source>
+        <source>https://github.com/dersphere/JamBMC</source>
         <forum></forum>
         <email>sphere@dersphere.de</email>
         <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
