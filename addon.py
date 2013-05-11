@@ -534,7 +534,7 @@ def show_mixtapes():
     return add_static_items(items)
 
 
-@plugin.route('/mixtapes/new')
+@plugin.route('/mixtapes/add')
 def add_mixtape(return_name=False):
     name = get_args('input') or plugin.keyboard(
         heading=_('mixtape_name')
