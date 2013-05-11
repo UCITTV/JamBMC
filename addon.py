@@ -18,7 +18,7 @@
 #
 
 import xbmcvfs  # FIXME: Import form xbmcswift if fixed upstream
-from xbmcswift2 import Plugin, xbmcgui, NotFoundException
+from xbmcswift2 import Plugin, xbmcgui, NotFoundException, xbmc
 from resources.lib.api import JamendoApi, ApiError, ConnectionError
 from resources.lib.geolocate import get_location, QuotaReached
 from resources.lib.downloader import JamendoDownloader
@@ -152,6 +152,7 @@ api = JamendoApi(
 
 @plugin.route('/')
 def show_root_menu():
+    fix_xbmc_music_library_view()
     items = [
         {'label': _('discover'),
          'path': plugin.url_for(endpoint='show_discover_root'),
@@ -1210,6 +1211,14 @@ def get_downloaded_track(track_id):
 
 def log(text):
     plugin.log.info(text)
+
+
+def fix_xbmc_music_library_view():
+    # avoid context menu replacing bug by
+    # switching window from musiclibrary to musicfiles
+    if xbmcgui.getCurrentWindowId() == 10502:
+        url = plugin.url_for(endpoint='show_root_menu')
+        xbmc.executebuiltin('ReplaceWindow(MusicFiles, %s)' % url)
 
 
 def _(string_id):
