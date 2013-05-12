@@ -51,6 +51,32 @@ IMAGE_SIZES = {
     'medium': '400',
     'small': '200',
 }
+TAGS = (
+    ('genres', (
+        'electronic', 'rock', 'ambient', 'experimental', 'pop', 'techno',
+        'metal', 'dance', 'hiphop', 'trance', 'classical', 'indie', 'punk',
+        'jazz', 'folk', 'industrial', 'lounge', 'funk', 'triphop', 'blues',
+        'newage', 'world', 'reggae', 'poprock', 'easylistening', 'ska',
+        'grunge', 'disco', 'country', 'rnb', 'latin', 'celtic', 'african',
+        'island', 'asian', 'middleeastern'
+    )),
+    ('instruments', (
+        'piano', 'synthesizer', 'electricguitar', 'bass', 'drum', 'computer',
+        'acousticguitar', 'keyboard', 'violin', 'cello', 'saxophone', 'organ',
+        'trumpet', 'flute', 'classicalguitar', 'viola', 'harmonica',
+        'accordion', 'horn', 'clarinet', 'harp', 'oboe', 'slideguitar',
+        'sitar', 'mandolin', 'harpsichord', 'banjo', 'steelpan', 'xylophone',
+        'oud', 'cowbell', 'bagpipes'
+    )),
+    ('moods', (
+        'soundtrack', 'emotion', 'soft', 'horror', 'comedy', 'political',
+        'nature', 'drama', 'children', 'documentary', 'scifi', 'travel',
+        'entertainment', 'adventure', 'videogame', 'religious', 'western',
+        'culture', 'health', 'history', 'sport', 'silentfilm',
+        'communication', 'education', 'adult', 'society', 'fashion',
+        'wedding', 'news', 'crime'
+    )),
+)
 
 
 class AuthError(Exception):
@@ -133,7 +159,7 @@ class JamendoApi():
         artists = self._api_call(path, params)
         return artists
 
-    def get_tracks(self, page=1, sort_method=None, filter_dict=None,
+    def get_tracks(self, page=1, sort_method=None, filter_dict=None, tags=None,
                    audioformat=None, album_id=None, ids=None, featured=False):
         path = 'tracks'
         params = {
@@ -153,6 +179,8 @@ class JamendoApi():
             params['id'] = '+'.join(ids)
         if featured:
             params['featured'] = 1
+        if tags:
+            params['tags'] = tags
         tracks = self._api_call(path, params)
         return tracks
 
@@ -331,6 +359,10 @@ class JamendoApi():
     @staticmethod
     def get_sort_methods(entity):
         return SORT_METHODS.get(entity, [])
+
+    @staticmethod
+    def get_tags():
+        return TAGS
 
     def log(self, message):
         print u'[%s]: %s' % (self.__class__.__name__, repr(message))

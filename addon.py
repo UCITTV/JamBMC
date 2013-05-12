@@ -115,7 +115,11 @@ STRINGS = {
     'sort_method_popularity_total': 30114,
     'sort_method_releasedate_asc': 30115,
     'sort_method_releasedate_desc': 30116,
-
+    # Tags
+    'current_tags': 30120,
+    'tag_type_genres': 30121,
+    'tag_type_instruments': 30122,
+    'tag_type_moods': 30123,
 }
 
 
@@ -331,9 +335,16 @@ def show_radios():
 def show_tracks():
     page = int(get_args('page', 1))
     sort_method = get_args('sort_method', 'popularity_month')
-    tracks = get_cached(api.get_tracks, page=page, sort_method=sort_method)
+    tags = get_args('tags')
+    tracks = get_cached(
+        api.get_tracks,
+        page=page,
+        sort_method=sort_method,
+        tags=tags
+    )
     items = format_tracks(tracks)
     items.append(get_sort_method_switcher_item('tracks', sort_method))
+    items.append(get_tag_filter_item())
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
 
@@ -630,6 +641,13 @@ def show_sort_methods(entity):
     return add_static_items(items)
 
 
+@plugin.route('/tracks/tags/')
+def show_tags():
+    tags = api.get_tags()
+    items = format_tags(tags)
+    return add_static_items(items)
+
+
 @plugin.route('/play/track/<track_id>')
 def play_track(track_id):
     add_track_to_history(track_id)
@@ -908,24 +926,6 @@ def format_similar_tracks(tracks):
     return items
 
 
-def format_sort_methods(sort_methods, entity):
-    items = [{
-        'label': _('sort_method_%s' % sort_method),
-        'thumbnail': 'DefaultMusicPlugins.png',
-        'info': {
-            'count': i,
-        },
-        'context_menu': context_menu_empty(),
-        'replace_context_menu': True,
-        'path': plugin.url_for(
-            endpoint='show_%s' % entity,
-            is_update='true',
-            **dict(plugin.request.view_params, sort_method=sort_method)
-        )
-    } for i, sort_method in enumerate(sort_methods)]
-    return items
-
-
 def format_mixtapes(mixtapes):
     items = [{
         'label': mixtape_id,
@@ -961,7 +961,72 @@ def format_comment(musicinfo):
     ))
 
 
+def format_sort_methods(sort_methods, entity):
+    original_params = plugin.request.view_params
+    extra_params = {}
+    if 'tags' in plugin.request.args:
+        extra_params['tags'] = get_args('tags')
+    items = [{
+        'label': _('sort_method_%s' % sort_method),
+        'thumbnail': 'DefaultMusicPlugins.png',
+        'info': {
+            'count': i,
+        },
+        'context_menu': context_menu_empty(),
+        'replace_context_menu': True,
+        'path': plugin.url_for(
+            endpoint='show_%s' % entity,
+            is_update='true',
+            **dict(original_params, sort_method=sort_method, **extra_params)
+        )
+    } for i, sort_method in enumerate(sort_methods)]
+    return items
+
+
+def format_tags(tags):
+    original_params = plugin.request.view_params
+    extra_params = {}
+    current_tags = [t for t in get_args('tags', '').split('+') if t]
+    if 'sort_method' in plugin.request.args:
+        extra_params['sort_method'] = get_args('sort_method')
+    items = []
+    for tag_type, type_tags in tags:
+        for i, tag in enumerate(type_tags):
+            tag_str = u'%s: %s' % (
+                _('tag_type_%s' % tag_type),
+                tag.capitalize()
+            )
+            if tag in current_tags:
+                new_tags = '+'.join((t for t in current_tags if not t == tag))
+                extra_params['tags'] = new_tags
+                label = u'[B]%s[/B]' % tag_str
+            else:
+                new_tags = '+'.join(([tag] + current_tags))
+                extra_params['tags'] = new_tags
+                label = u'%s' % tag_str
+            items.append({
+                'label': label,
+                'thumbnail': 'DefaultMusicPlugins.png',
+                'info': {
+                    'count': i,
+                },
+                'context_menu': context_menu_empty(),
+                'replace_context_menu': True,
+                'path': plugin.url_for(
+                    endpoint='show_tracks',
+                    is_update='true',
+                    **dict(original_params, **extra_params)
+                )
+            })
+    return items
+
+
 def get_sort_method_switcher_item(entity, current_method='default'):
+    original_params = plugin.request.view_params
+    extra_params = {}
+    extra_params['entity'] = entity
+    if 'tags' in plugin.request.args:
+        extra_params['tags'] = get_args('tags')
     return {
         'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
         'thumbnail': 'DefaultMusicPlugins.png',
@@ -972,8 +1037,33 @@ def get_sort_method_switcher_item(entity, current_method='default'):
         },
         'path': plugin.url_for(
             endpoint='show_sort_methods',
-            entity=entity,
             is_update='true',
+            **dict(original_params, **extra_params)
+        ),
+    }
+
+
+def get_tag_filter_item():
+    current_tags = [t for t in get_args('tags', '').split('+') if t]
+    extra_params = {}
+    if 'sort_method' in plugin.request.args:
+        extra_params['sort_method'] = get_args('sort_method')
+    extra_params['tags'] = get_args('tags', '')
+    return {
+        'label': u'[B][[ %s: %s ]][/B]' % (
+            _('current_tags'),
+            len(current_tags)
+        ),
+        'thumbnail': 'DefaultMusicPlugins.png',
+        'context_menu': context_menu_empty(),
+        'replace_context_menu': True,
+        'info': {
+            'count': 0,
+        },
+        'path': plugin.url_for(
+            endpoint='show_tags',
+            is_update='true',
+            **extra_params
         ),
     }
 
@@ -986,6 +1076,8 @@ def get_page_switcher_items(items_len):
     extra_params = {}
     if 'sort_method' in plugin.request.args:
         extra_params['sort_method'] = get_args('sort_method')
+    if 'tags' in plugin.request.args:
+        extra_params['tags'] = get_args('tags', '')
     items = []
     if has_next_page:
         next_page = int(current_page) + 1
