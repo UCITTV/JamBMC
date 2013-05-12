@@ -55,26 +55,27 @@ TAGS = (
     ('genres', (
         'electronic', 'rock', 'ambient', 'experimental', 'pop', 'techno',
         'metal', 'dance', 'hiphop', 'trance', 'classical', 'indie', 'punk',
-        'jazz', 'folk', 'industrial', 'lounge', 'funk', 'triphop', 'blues',
-        'newage', 'world', 'reggae', 'poprock', 'easylistening', 'ska',
-        'grunge', 'disco', 'country', 'rnb', 'latin', 'celtic', 'african',
-        'island', 'asian', 'middleeastern'
+        'jazz', 'folk',
+        # 'industrial', 'lounge', 'funk', 'triphop', 'blues',
+        # 'newage', 'world', 'reggae', 'poprock', 'easylistening', 'ska',
+        # 'grunge', 'disco', 'country', 'rnb', 'latin', 'celtic', 'african',
+        # 'island', 'asian', 'middleeastern'
     )),
     ('instruments', (
         'piano', 'synthesizer', 'electricguitar', 'bass', 'drum', 'computer',
         'acousticguitar', 'keyboard', 'violin', 'cello', 'saxophone', 'organ',
-        'trumpet', 'flute', 'classicalguitar', 'viola', 'harmonica',
-        'accordion', 'horn', 'clarinet', 'harp', 'oboe', 'slideguitar',
-        'sitar', 'mandolin', 'harpsichord', 'banjo', 'steelpan', 'xylophone',
-        'oud', 'cowbell', 'bagpipes'
+        # 'trumpet', 'flute', 'classicalguitar', 'viola', 'harmonica',
+        # 'accordion', 'horn', 'clarinet', 'harp', 'oboe', 'slideguitar',
+        # 'sitar', 'mandolin', 'harpsichord', 'banjo', 'steelpan', 'xylophone',
+        # 'oud', 'cowbell', 'bagpipes'
     )),
     ('moods', (
         'soundtrack', 'emotion', 'soft', 'horror', 'comedy', 'political',
         'nature', 'drama', 'children', 'documentary', 'scifi', 'travel',
-        'entertainment', 'adventure', 'videogame', 'religious', 'western',
-        'culture', 'health', 'history', 'sport', 'silentfilm',
-        'communication', 'education', 'adult', 'society', 'fashion',
-        'wedding', 'news', 'crime'
+        # 'entertainment', 'adventure', 'videogame', 'religious', 'western',
+        # 'culture', 'health', 'history', 'sport', 'silentfilm',
+        # 'communication', 'education', 'adult', 'society', 'fashion',
+        # 'wedding', 'news', 'crime'
     )),
 )
 
