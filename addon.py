@@ -964,10 +964,13 @@ def format_comment(musicinfo):
 def format_sort_methods(sort_methods, entity):
     original_params = plugin.request.view_params
     extra_params = {}
+    current_method = get_args('sort_method')
     if 'tags' in plugin.request.args:
         extra_params['tags'] = get_args('tags')
     items = [{
-        'label': _('sort_method_%s' % sort_method),
+        'label': (
+            u'[B]%s[/B]' if sort_method == current_method else u'%s'
+        ) % _('sort_method_%s' % sort_method),
         'thumbnail': 'DefaultMusicPlugins.png',
         'info': {
             'count': i,
@@ -1025,6 +1028,7 @@ def get_sort_method_switcher_item(entity, current_method='default'):
     original_params = plugin.request.view_params
     extra_params = {}
     extra_params['entity'] = entity
+    extra_params['sort_method'] = current_method
     if 'tags' in plugin.request.args:
         extra_params['tags'] = get_args('tags')
     return {
