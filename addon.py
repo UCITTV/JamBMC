@@ -1081,7 +1081,7 @@ def get_page_switcher_items(items_len):
     items = []
     if has_next_page:
         next_page = int(current_page) + 1
-        extra_params['page'] = next_page
+        extra_params['page'] = str(next_page)
         items.append({
             'label': u'>> %s %d >>' % (_('page'), next_page),
             'context_menu': context_menu_empty(),
@@ -1097,7 +1097,7 @@ def get_page_switcher_items(items_len):
         })
     if has_previous_page:
         previous_page = int(current_page) - 1
-        extra_params['page'] = previous_page
+        extra_params['page'] = str(previous_page)
         items.append({
             'label': u'<< %s %d <<' % (_('page'), previous_page),
             'context_menu': context_menu_empty(),
