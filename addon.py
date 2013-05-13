@@ -154,6 +154,8 @@ api = JamendoApi(
 )
 
 
+########################### Static Views ######################################
+
 @plugin.route('/')
 def show_root_menu():
     fix_xbmc_music_library_view()
@@ -249,6 +251,8 @@ def show_user_root():
     return add_static_items(items)
 
 
+########################### Dynamic Views #####################################
+
 @plugin.route('/albums/')
 def show_albums():
     page = int(get_args('page', 1))
@@ -260,17 +264,6 @@ def show_albums():
     return add_items(items)
 
 
-@plugin.route('/albums/search/')
-def search_albums():
-    query = get_args('input') or plugin.keyboard(
-        heading=_('search_heading_album')
-    )
-    if query:
-        albums = get_cached(api.get_albums, search_terms=query)
-        items = format_albums(albums)
-        return add_items(items)
-
-
 @plugin.route('/albums/<artist_id>/')
 def show_albums_by_artist(artist_id):
     page = int(get_args('page', 1))
@@ -278,26 +271,6 @@ def show_albums_by_artist(artist_id):
     items = format_albums(albums)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items)
-
-
-@plugin.route('/playlists/')
-def show_playlists():
-    page = int(get_args('page', 1))
-    playlists = get_cached(api.get_playlists, page=page)
-    items = format_playlists(playlists)
-    items.extend(get_page_switcher_items(len(items)))
-    return add_items(items, same_cover=True)
-
-
-@plugin.route('/playlists/search/')
-def search_playlists():
-    query = get_args('input') or plugin.keyboard(
-        heading=_('search_heading_playlist')
-    )
-    if query:
-        playlists = api.get_playlists(search_terms=query)
-        items = format_playlists(playlists)
-        return add_items(items, same_cover=True)
 
 
 @plugin.route('/artists/')
@@ -311,15 +284,37 @@ def show_artists():
     return add_items(items)
 
 
-@plugin.route('/artists/search/')
-def search_artists():
-    query = get_args('input') or plugin.keyboard(
-        heading=_('search_heading_artist')
-    )
-    if query:
-        artists = api.get_artists(search_terms=query)
-        items = format_artists(artists)
-        return add_items(items)
+@plugin.route('/artists/near/')
+def show_near_artists():
+    lat_long = plugin.get_setting('lat_long', str)
+    while not lat_long:
+        confirmed = xbmcgui.Dialog().yesno(
+            _('geolocating'),
+            _('will_send_one_request_to'),
+            _('freegeoip_net'),
+            _('are_you_sure')
+        )
+        if not confirmed:
+            return
+        try:
+            location = get_location()
+        except QuotaReached:
+            plugin.notify(_('try_again_later'))
+            return
+        lat_long = '%s_%s' % (location['latitude'], location['longitude'])
+        plugin.set_setting('lat_long', lat_long)
+    artists = get_cached(api.get_artists_by_location, coords=lat_long)
+    items = format_artists_location(artists)
+    return add_items(items)
+
+
+@plugin.route('/playlists/')
+def show_playlists():
+    page = int(get_args('page', 1))
+    playlists = get_cached(api.get_playlists, page=page)
+    items = format_playlists(playlists)
+    items.extend(get_page_switcher_items(len(items)))
+    return add_items(items, same_cover=True)
 
 
 @plugin.route('/radios/')
@@ -349,23 +344,27 @@ def show_tracks():
     return add_items(items)
 
 
-@plugin.route('/tracks/search/')
-def search_tracks():
-    query = get_args('input') or plugin.keyboard(
-        heading=_('search_heading_tracks')
-    )
-    if query:
-        tracks = api.search_tracks(search_terms=query)
-        items = format_tracks(tracks)
-        return add_items(items)
-
-
 @plugin.route('/tracks/album/<album_id>/')
 def show_tracks_in_album(album_id):
     tracks = get_cached(api.get_tracks, album_id=album_id)
     items = format_tracks(tracks)
     items.extend(get_page_switcher_items(len(items)))
     return add_items(items, same_cover=True)
+
+
+@plugin.route('/tracks/featured/')
+def show_featured_tracks():
+    page = int(get_args('page', 1))
+    sort_method = 'releasedate_desc'
+    tracks = get_cached(
+        api.get_tracks,
+        page=page,
+        sort_method=sort_method,
+        featured=True
+    )
+    items = format_tracks(tracks)
+    items.extend(get_page_switcher_items(len(items)))
+    return add_items(items)
 
 
 @plugin.route('/tracks/playlist/<playlist_id>/')
@@ -388,43 +387,84 @@ def show_similar_tracks(track_id):
     return add_items(items)
 
 
-@plugin.route('/tracks/featured/')
-def show_featured_tracks():
-    page = int(get_args('page', 1))
-    sort_method = 'releasedate_desc'
-    tracks = get_cached(
-        api.get_tracks,
-        page=page,
-        sort_method=sort_method,
-        featured=True
+############################# Search Views ####################################
+
+
+@plugin.route('/albums/search/')
+def search_albums():
+    query = get_args('input') or plugin.keyboard(
+        heading=_('search_heading_album')
     )
-    items = format_tracks(tracks)
-    items.extend(get_page_switcher_items(len(items)))
-    return add_items(items)
+    if query:
+        albums = get_cached(api.get_albums, search_terms=query)
+        items = format_albums(albums)
+        return add_items(items)
 
 
-@plugin.route('/artists/near/')
-def show_near_artists():
-    lat_long = plugin.get_setting('lat_long', str)
-    while not lat_long:
-        confirmed = xbmcgui.Dialog().yesno(
-            _('geolocating'),
-            _('will_send_one_request_to'),
-            _('freegeoip_net'),
-            _('are_you_sure')
-        )
-        if not confirmed:
-            return
-        try:
-            location = get_location()
-        except QuotaReached:
-            plugin.notify(_('try_again_later'))
-            return
-        lat_long = '%s_%s' % (location['latitude'], location['longitude'])
-        plugin.set_setting('lat_long', lat_long)
-    artists = get_cached(api.get_artists_by_location, coords=lat_long)
-    items = format_artists_location(artists)
-    return add_items(items)
+@plugin.route('/artists/search/')
+def search_artists():
+    query = get_args('input') or plugin.keyboard(
+        heading=_('search_heading_artist')
+    )
+    if query:
+        artists = api.get_artists(search_terms=query)
+        items = format_artists(artists)
+        return add_items(items)
+
+
+@plugin.route('/playlists/search/')
+def search_playlists():
+    query = get_args('input') or plugin.keyboard(
+        heading=_('search_heading_playlist')
+    )
+    if query:
+        playlists = api.get_playlists(search_terms=query)
+        items = format_playlists(playlists)
+        return add_items(items, same_cover=True)
+
+
+@plugin.route('/tracks/search/')
+def search_tracks():
+    query = get_args('input') or plugin.keyboard(
+        heading=_('search_heading_tracks')
+    )
+    if query:
+        tracks = api.search_tracks(search_terms=query)
+        items = format_tracks(tracks)
+        return add_items(items)
+
+
+############################ Jamendo Views ####################################
+
+@plugin.route('/user/albums/')
+def show_user_albums():
+    user_id = get_user_account()
+    if user_id:
+        page = int(get_args('page', 1))
+        albums = api.get_user_albums(user_id=user_id, page=page)
+        items = format_albums(albums)
+        items.extend(get_page_switcher_items(len(items)))
+        return add_items(items)
+
+
+@plugin.route('/user/artists/')
+def show_user_artists():
+    user_id = get_user_account()
+    if user_id:
+        page = int(get_args('page', 1))
+        artists = api.get_user_artists(user_id=user_id, page=page)
+        items = format_artists(artists)
+        items.extend(get_page_switcher_items(len(items)))
+        return add_items(items)
+
+
+@plugin.route('/user/playlists/')
+def show_user_playlists():
+    user_id = get_user_account()
+    if user_id:
+        playlists = api.get_playlists(user_id=user_id)
+        items = format_playlists(playlists)
+        return add_items(items, same_cover=True)
 
 
 @plugin.route('/user/set_user_account/')
@@ -444,42 +484,6 @@ def set_user_account():
                 plugin.set_setting('user_id', user['id'])
 
 
-def get_user_account():
-    user_id = plugin.get_setting('user_id', str)
-    while not user_id:
-        try_again = xbmcgui.Dialog().yesno(
-            _('no_username_set'),
-            _('want_set_now')
-        )
-        if not try_again:
-            return
-        set_user_account()
-        user_id = plugin.get_setting('user_id', str)
-    return user_id
-
-
-@plugin.route('/user/artists/')
-def show_user_artists():
-    user_id = get_user_account()
-    if user_id:
-        page = int(get_args('page', 1))
-        artists = api.get_user_artists(user_id=user_id, page=page)
-        items = format_artists(artists)
-        items.extend(get_page_switcher_items(len(items)))
-        return add_items(items)
-
-
-@plugin.route('/user/albums/')
-def show_user_albums():
-    user_id = get_user_account()
-    if user_id:
-        page = int(get_args('page', 1))
-        albums = api.get_user_albums(user_id=user_id, page=page)
-        items = format_albums(albums)
-        items.extend(get_page_switcher_items(len(items)))
-        return add_items(items)
-
-
 @plugin.route('/user/tracks/')
 def show_user_tracks():
     user_id = get_user_account()
@@ -491,33 +495,7 @@ def show_user_tracks():
         return add_items(items)
 
 
-@plugin.route('/user/playlists/')
-def show_user_playlists():
-    user_id = get_user_account()
-    if user_id:
-        playlists = api.get_playlists(user_id=user_id)
-        items = format_playlists(playlists)
-        return add_items(items, same_cover=True)
-
-
-@plugin.route('/history/')
-def show_history():
-    tracks = get_tracks_from_history()
-    if tracks:
-        items = format_tracks(reversed(tracks))
-        return add_items(items)
-    plugin.notify(_('history_empty'))
-
-
-@plugin.route('/downloads/tracks/')
-def show_downloaded_tracks():
-    downloads = plugin.get_storage('downloaded_tracks')
-    if downloads.items():
-        tracks = [t['data'] for t in downloads.itervalues()]
-        items = format_tracks(tracks)
-        return add_items(items)
-    plugin.notify(_('downloads_empty'))
-
+############################## Downloads ######################################
 
 @plugin.route('/downloads/albums/')
 def show_downloaded_albums():
@@ -537,6 +515,30 @@ def show_downloaded_album_tracks(album_id):
     items = format_tracks(tracks)
     return add_items(items, same_cover=True)
 
+
+@plugin.route('/downloads/tracks/')
+def show_downloaded_tracks():
+    downloads = plugin.get_storage('downloaded_tracks')
+    if downloads.items():
+        tracks = [t['data'] for t in downloads.itervalues()]
+        items = format_tracks(tracks)
+        return add_items(items)
+    plugin.notify(_('downloads_empty'))
+
+
+############################### History #######################################
+
+@plugin.route('/history/')
+def show_history():
+    history = plugin.get_storage('history')
+    tracks = history.get('items', [])
+    if tracks:
+        items = format_tracks(reversed(tracks))
+        return add_items(items)
+    plugin.notify(_('history_empty'))
+
+
+############################## Mixtapes #######################################
 
 @plugin.route('/mixtapes/')
 def show_mixtapes():
@@ -634,6 +636,8 @@ def del_track_from_mixtape(mixtape_id, track_id):
     mixtapes.sync()
 
 
+########################### Callback Views ####################################
+
 @plugin.route('/sort_methods/<entity>/')
 def show_sort_methods(entity):
     sort_methods = get_cached(api.get_sort_methods, entity)
@@ -648,16 +652,7 @@ def show_tags():
     return add_static_items(items)
 
 
-@plugin.route('/play/track/<track_id>')
-def play_track(track_id):
-    add_track_to_history(track_id)
-    track_url = get_downloaded_track(track_id)
-    if not track_url:
-        formats = ('mp3', 'ogg')
-        audioformat = plugin.get_setting('playback_format', choices=formats)
-        track_url = api.get_track_url(track_id, audioformat)
-    return plugin.set_resolved_url(track_url)
-
+############################ Action Views #####################################
 
 @plugin.route('/download/track/<track_id>')
 def download_track(track_id):
@@ -701,44 +696,23 @@ def play_radio(radio_id):
     return plugin.set_resolved_url(stream_url)
 
 
+@plugin.route('/play/track/<track_id>')
+def play_track(track_id):
+    add_track_to_history(track_id)
+    track_url = get_downloaded_track(track_id)
+    if not track_url:
+        formats = ('mp3', 'ogg')
+        audioformat = plugin.get_setting('playback_format', choices=formats)
+        track_url = api.get_track_url(track_id, audioformat)
+    return plugin.set_resolved_url(track_url)
+
+
 @plugin.route('/settings')
 def open_settings():
     plugin.open_settings()
 
 
-def format_tracks(tracks):
-    plugin.set_content('songs')
-    items = [{
-        'label': u'%s - %s (%s)' % (
-            track['artist_name'],
-            track['name'],
-            track['album_name']
-        ),
-        'info': {
-            'count': i + 2,
-            'title': track['name'],
-            'album': track['album_name'],
-            'duration': track['duration'],
-            'artist': track['artist_name'],
-            'genre': u', '.join(track['musicinfo']['tags']['genres']),
-            'comment': format_comment(track['musicinfo']),
-            'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
-        },
-        'context_menu': context_menu_track(
-            artist_id=track['artist_id'],
-            track_id=track['id'],
-            album_id=track['album_id']
-        ),
-        'replace_context_menu': True,
-        'is_playable': True,
-        'thumbnail': track['album_image'],
-        'path': plugin.url_for(
-            endpoint='play_track',
-            track_id=track['id']
-        )
-    } for i, track in enumerate(tracks)]
-    return items
-
+############################# Formaters #######################################
 
 def format_albums(albums):
     plugin.set_content('albums')
@@ -762,6 +736,65 @@ def format_albums(albums):
         )
     } for i, album in enumerate(albums)]
     return items
+
+
+def format_artists(artists):
+    plugin.set_content('artists')
+    items = [{
+        'label': artist['name'],
+        'info': {
+            'count': i + 2,
+            'artist': artist['name'],
+        },
+        'context_menu': context_menu_artist(artist['id']),
+        'replace_context_menu': True,
+        'thumbnail': get_artist_image(artist['image']),
+        'path': plugin.url_for(
+            endpoint='show_albums_by_artist',
+            artist_id=artist['id'],
+        )
+    } for i, artist in enumerate(artists)]
+    return items
+
+
+def format_artists_location(artists):
+    plugin.set_content('artists')
+    items = [{
+        'label': u'%s (%s - %s)' % (
+            artist['name'],
+            artist['locations'][0]['country'],
+            artist['locations'][0]['city'],
+        ),
+        'info': {
+            'count': i + 2,
+            'artist': artist['name'],
+        },
+        'context_menu': context_menu_artist(artist['id']),
+        'replace_context_menu': True,
+        'thumbnail': get_artist_image(artist['image']),
+        'path': plugin.url_for(
+            endpoint='show_albums_by_artist',
+            artist_id=artist['id'],
+        )
+    } for i, artist in enumerate(artists)]
+    return items
+
+
+def format_comment(musicinfo):
+    return '[CR]'.join((
+        '[B]%s[/B]: %s' % (
+            _('language'),
+            musicinfo['lang']
+        ),
+        '[B]%s[/B]: %s' % (
+            _('instruments'),
+            ', '.join(musicinfo['tags']['instruments'])
+        ),
+        '[B]%s[/B]: %s' % (
+            _('vartags'),
+            ', '.join(musicinfo['tags']['vartags'])
+        ),
+    ))
 
 
 def format_downloaded_albums(albums):
@@ -788,6 +821,24 @@ def format_downloaded_albums(albums):
     return items
 
 
+def format_mixtapes(mixtapes):
+    items = [{
+        'label': mixtape_id,
+        'info': {
+            'count': i + 1,
+        },
+        'context_menu': context_menu_mixtape(
+            mixtape_id=mixtape_id,
+        ),
+        'replace_context_menu': True,
+        'path': plugin.url_for(
+            endpoint='show_mixtape',
+            mixtape_id=mixtape_id
+        )
+    } for i, (mixtape_id, mixtape) in enumerate(mixtapes.iteritems())]
+    return items
+
+
 def format_playlists(playlists):
     plugin.set_content('music')
     items = [{
@@ -805,67 +856,6 @@ def format_playlists(playlists):
             playlist_id=playlist['id']
         )
     } for i, playlist in enumerate(playlists)]
-    return items
-
-
-def format_artists(artists):
-    plugin.set_content('artists')
-    items = [{
-        'label': artist['name'],
-        'info': {
-            'count': i + 2,
-            'artist': artist['name'],
-        },
-        'context_menu': context_menu_artist(artist['id']),
-        'replace_context_menu': True,
-        'thumbnail': image_helper(artist['image']),
-        'path': plugin.url_for(
-            endpoint='show_albums_by_artist',
-            artist_id=artist['id'],
-        )
-    } for i, artist in enumerate(artists)]
-    return items
-
-
-def format_artists_location(artists):
-    plugin.set_content('artists')
-    items = [{
-        'label': u'%s (%s - %s)' % (
-            artist['name'],
-            artist['locations'][0]['country'],
-            artist['locations'][0]['city'],
-        ),
-        'info': {
-            'count': i + 2,
-            'artist': artist['name'],
-        },
-        'context_menu': context_menu_artist(artist['id']),
-        'replace_context_menu': True,
-        'thumbnail': image_helper(artist['image']),
-        'path': plugin.url_for(
-            endpoint='show_albums_by_artist',
-            artist_id=artist['id'],
-        )
-    } for i, artist in enumerate(artists)]
-    return items
-
-
-def format_radios(radios):
-    plugin.set_content('music')
-    items = [{
-        'label': radio['dispname'],
-        'info': {
-            'count': i + 2,
-        },
-        'context_menu': context_menu_empty(),
-        'replace_context_menu': True,
-        'thumbnail': radio['image'],
-        'is_playable': True,
-        'path': plugin.url_for(
-            endpoint='play_radio',
-            radio_id=radio['id'],
-        )
-    } for i, radio in enumerate(radios)]
     return items
 
 
@@ -891,6 +881,25 @@ def format_playlist_tracks(playlist, tracks):
             track_id=track['id']
         )
     } for i, track in enumerate(tracks)]
+    return items
+
+
+def format_radios(radios):
+    plugin.set_content('music')
+    items = [{
+        'label': radio['dispname'],
+        'info': {
+            'count': i + 2,
+        },
+        'context_menu': context_menu_empty(),
+        'replace_context_menu': True,
+        'thumbnail': radio['image'],
+        'is_playable': True,
+        'path': plugin.url_for(
+            endpoint='play_radio',
+            radio_id=radio['id'],
+        )
+    } for i, radio in enumerate(radios)]
     return items
 
 
@@ -924,41 +933,6 @@ def format_similar_tracks(tracks):
         )
     } for i, track in enumerate(tracks)]
     return items
-
-
-def format_mixtapes(mixtapes):
-    items = [{
-        'label': mixtape_id,
-        'info': {
-            'count': i + 1,
-        },
-        'context_menu': context_menu_mixtape(
-            mixtape_id=mixtape_id,
-        ),
-        'replace_context_menu': True,
-        'path': plugin.url_for(
-            endpoint='show_mixtape',
-            mixtape_id=mixtape_id
-        )
-    } for i, (mixtape_id, mixtape) in enumerate(mixtapes.iteritems())]
-    return items
-
-
-def format_comment(musicinfo):
-    return '[CR]'.join((
-        '[B]%s[/B]: %s' % (
-            _('language'),
-            musicinfo['lang']
-        ),
-        '[B]%s[/B]: %s' % (
-            _('instruments'),
-            ', '.join(musicinfo['tags']['instruments'])
-        ),
-        '[B]%s[/B]: %s' % (
-            _('vartags'),
-            ', '.join(musicinfo['tags']['vartags'])
-        ),
-    ))
 
 
 def format_sort_methods(sort_methods, entity):
@@ -1024,50 +998,52 @@ def format_tags(tags):
     return items
 
 
-def get_sort_method_switcher_item(entity, current_method='default'):
-    original_params = plugin.request.view_params
-    extra_params = {}
-    extra_params['entity'] = entity
-    extra_params['sort_method'] = current_method
-    if 'tags' in plugin.request.args:
-        extra_params['tags'] = get_args('tags')
+def format_tracks(tracks):
+    plugin.set_content('songs')
+    items = [{
+        'label': u'%s - %s (%s)' % (
+            track['artist_name'],
+            track['name'],
+            track['album_name']
+        ),
+        'info': {
+            'count': i + 2,
+            'title': track['name'],
+            'album': track['album_name'],
+            'duration': track['duration'],
+            'artist': track['artist_name'],
+            'genre': u', '.join(track['musicinfo']['tags']['genres']),
+            'comment': format_comment(track['musicinfo']),
+            'year': int(track.get('releasedate', '0-0-0').split('-')[0]),
+        },
+        'context_menu': context_menu_track(
+            artist_id=track['artist_id'],
+            track_id=track['id'],
+            album_id=track['album_id']
+        ),
+        'replace_context_menu': True,
+        'is_playable': True,
+        'thumbnail': track['album_image'],
+        'path': plugin.url_for(
+            endpoint='play_track',
+            track_id=track['id']
+        )
+    } for i, track in enumerate(tracks)]
+    return items
+
+
+############################### Items #########################################
+
+def get_add_mixtape_item():
     return {
-        'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
-        'thumbnail': 'DefaultMusicPlugins.png',
+        'label': u'[B]%s[/B]' % _('add_mixtape'),
         'context_menu': context_menu_empty(),
         'replace_context_menu': True,
         'info': {
             'count': 0,
         },
         'path': plugin.url_for(
-            endpoint='show_sort_methods',
-            is_update='true',
-            **dict(original_params, **extra_params)
-        ),
-    }
-
-
-def get_tag_filter_item():
-    current_tags = [t for t in get_args('tags', '').split('+') if t]
-    extra_params = {}
-    if 'sort_method' in plugin.request.args:
-        extra_params['sort_method'] = get_args('sort_method')
-    extra_params['tags'] = get_args('tags', '')
-    return {
-        'label': u'[B][[ %s: %s ]][/B]' % (
-            _('current_tags'),
-            len(current_tags)
-        ),
-        'thumbnail': 'DefaultMusicPlugins.png',
-        'context_menu': context_menu_empty(),
-        'replace_context_menu': True,
-        'info': {
-            'count': 0,
-        },
-        'path': plugin.url_for(
-            endpoint='show_tags',
-            is_update='true',
-            **extra_params
+            endpoint='add_mixtape',
         ),
     }
 
@@ -1118,19 +1094,55 @@ def get_page_switcher_items(items_len):
     return items
 
 
-def get_add_mixtape_item():
+def get_sort_method_switcher_item(entity, current_method='default'):
+    original_params = plugin.request.view_params
+    extra_params = {}
+    extra_params['entity'] = entity
+    extra_params['sort_method'] = current_method
+    if 'tags' in plugin.request.args:
+        extra_params['tags'] = get_args('tags')
     return {
-        'label': u'[B]%s[/B]' % _('add_mixtape'),
+        'label': u'[B][[ %s ]][/B]' % _('sort_method_%s' % current_method),
+        'thumbnail': 'DefaultMusicPlugins.png',
         'context_menu': context_menu_empty(),
         'replace_context_menu': True,
         'info': {
             'count': 0,
         },
         'path': plugin.url_for(
-            endpoint='add_mixtape',
+            endpoint='show_sort_methods',
+            is_update='true',
+            **dict(original_params, **extra_params)
         ),
     }
 
+
+def get_tag_filter_item():
+    current_tags = [t for t in get_args('tags', '').split('+') if t]
+    extra_params = {}
+    if 'sort_method' in plugin.request.args:
+        extra_params['sort_method'] = get_args('sort_method')
+    extra_params['tags'] = get_args('tags', '')
+    return {
+        'label': u'[B][[ %s: %s ]][/B]' % (
+            _('current_tags'),
+            len(current_tags)
+        ),
+        'thumbnail': 'DefaultMusicPlugins.png',
+        'context_menu': context_menu_empty(),
+        'replace_context_menu': True,
+        'info': {
+            'count': 0,
+        },
+        'path': plugin.url_for(
+            endpoint='show_tags',
+            is_update='true',
+            **extra_params
+        ),
+    }
+
+
+############################ Item-Adders ######################################
 
 def add_items(items, same_cover=False):
     is_update = 'is_update' in plugin.request.args
@@ -1155,12 +1167,7 @@ def add_static_items(items):
         return plugin.finish(items)
 
 
-def context_menu_empty():
-    return [
-        (_('addon_settings'),
-         _run(endpoint='open_settings')),
-    ]
-
+############################ Context-Menu #####################################
 
 def context_menu_album(artist_id, album_id):
     return [
@@ -1190,6 +1197,23 @@ def context_menu_artist(artist_id):
     ]
 
 
+def context_menu_empty():
+    return [
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
+
+
+def context_menu_mixtape(mixtape_id):
+    return [
+        (_('delete_mixtape'),
+         _run(endpoint='del_mixtape',
+              mixtape_id=mixtape_id)),
+        (_('addon_settings'),
+         _run(endpoint='open_settings')),
+    ]
+
+
 def context_menu_track(artist_id, track_id, album_id):
     return [
         (_('song_info'),
@@ -1214,14 +1238,10 @@ def context_menu_track(artist_id, track_id, album_id):
     ]
 
 
-def context_menu_mixtape(mixtape_id):
-    return [
-        (_('delete_mixtape'),
-         _run(endpoint='del_mixtape',
-              mixtape_id=mixtape_id)),
-        (_('addon_settings'),
-         _run(endpoint='open_settings')),
-    ]
+############################## Callers ########################################
+
+def _action(arg):
+    return 'XBMC.Action(%s)' % arg
 
 
 def _run(*args, **kwargs):
@@ -1232,9 +1252,7 @@ def _view(*args, **kwargs):
     return 'XBMC.Container.Update(%s)' % plugin.url_for(*args, **kwargs)
 
 
-def _action(arg):
-    return 'XBMC.Action(%s)' % arg
-
+############################## Helpers ########################################
 
 def get_args(arg_name, default=None):
     return plugin.request.args.get(arg_name, [default])[0]
@@ -1265,12 +1283,40 @@ def get_download_path(setting_name):
     return download_path
 
 
-def image_helper(url):
+def get_downloaded_track(track_id):
+    tracks = plugin.get_storage('downloaded_tracks')
+    if track_id in tracks:
+        if xbmcvfs.exists(tracks[track_id]['file']):
+            log('Track is already downloaded, playing local')
+            return tracks[track_id]['file']
+    albums = plugin.get_storage('downloaded_albums')
+    for album in albums.itervalues():
+        if track_id in album['tracks']:
+            if xbmcvfs.exists(album['tracks'][track_id]['file']):
+                log('Album is already downloaded, playing local')
+                return album['tracks'][track_id]['file']
+
+
+def get_artist_image(url):
     if url:
         # fix whitespace in some image urls
         return url.replace(' ', '%20')
     else:
         return 'DefaultActor.png'
+
+
+def get_user_account():
+    user_id = plugin.get_setting('user_id', str)
+    while not user_id:
+        try_again = xbmcgui.Dialog().yesno(
+            _('no_username_set'),
+            _('want_set_now')
+        )
+        if not try_again:
+            return
+        set_user_account()
+        user_id = plugin.get_setting('user_id', str)
+    return user_id
 
 
 def add_track_to_history(track_id):
@@ -1284,25 +1330,6 @@ def add_track_to_history(track_id):
         while len(history['items']) > history_limit:
             history['items'].pop(0)
         history.sync()
-
-
-def get_tracks_from_history():
-    history = plugin.get_storage('history')
-    return history.get('items', [])
-
-
-def get_downloaded_track(track_id):
-    tracks = plugin.get_storage('downloaded_tracks')
-    if track_id in tracks:
-        if xbmcvfs.exists(tracks[track_id]['file']):
-            log('Track is already downloaded, playing local')
-            return tracks[track_id]['file']
-    albums = plugin.get_storage('downloaded_albums')
-    for album in albums.itervalues():
-        if track_id in album['tracks']:
-            if xbmcvfs.exists(album['tracks'][track_id]['file']):
-                log('Album is already downloaded, playing local')
-                return album['tracks'][track_id]['file']
 
 
 def log(text):
