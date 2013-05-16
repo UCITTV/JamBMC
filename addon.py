@@ -664,7 +664,7 @@ def download_track(track_id):
     formats = ('mp3', 'ogg', 'flac')
     audioformat = plugin.get_setting('download_format', choices=formats)
     include_cover = plugin.get_setting('download_track_cover', bool)
-    tracks = downloader.download_track(track_id, audioformat, include_cover)
+    tracks = downloader.download_tracks([track_id], audioformat, include_cover)
     if tracks:
         downloaded_tracks = plugin.get_storage('downloaded_tracks')
         downloaded_tracks.update(tracks)

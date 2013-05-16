@@ -52,39 +52,42 @@ class JamendoDownloader(object):
             xbmcvfs.mkdirs(self.temp_path)
         self._init_progress()
 
-    def download_track(self, track_id, audioformat, include_cover=True):
+    def download_tracks(self, track_ids, audioformat, include_cover=True):
         downloaded_tracks = {}
-        self._update_progress(2)
-        track = self.api.get_track(track_id, audioformat=audioformat)
-        self._update_progress(15)
-        filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
-            'artist': track['artist_name'].encode('ascii', 'ignore'),
-            'title': track['name'].encode('ascii', 'ignore'),
-            'album': track['album_name'].encode('ascii', 'ignore'),
-            'year': track.get('releasedate', '0-0-0').split('-')[0],
-        }
+        self._update_progress(10)
         line3 = _('downloading_to_s') % self.download_path
         self._update_progress(line3=line3)
-        if include_cover:
-            cover_url = track['album_image']
-            cover_filename = '%s.tbn' % filename
-            line2 = _('current_file_s') % cover_filename
-            self._update_progress(line2=line2)
-            self._download_item(cover_url, cover_filename)
-        self._update_progress(25)
-        track_filename = '%s.%s' % (filename, audioformat)
-        line2 = _('current_file_s') % track_filename
-        self._update_progress(line2=line2)
-        try:
-            track_file = self._download_item(track['audio'], track_filename)
-        except DownloadAborted:
-            return None
-        self._update_progress(80)
-        if track_file:
-            downloaded_tracks[track_id] = {
-                'file': track_file,
-                'data': track
+        for i, track_id in enumerate(track_ids):
+            track = self.api.get_track(track_id, audioformat=audioformat)
+            filename = '%(artist)s - %(title)s (%(album)s) [%(year)s]' % {
+                'artist': track['artist_name'].encode('ascii', 'ignore'),
+                'title': track['name'].encode('ascii', 'ignore'),
+                'album': track['album_name'].encode('ascii', 'ignore'),
+                'year': track.get('releasedate', '0-0-0').split('-')[0],
             }
+            if include_cover:
+                cover_url = track['album_image']
+                cover_filename = '%s.tbn' % filename
+                line2 = _('current_file_s') % cover_filename
+                self._update_progress(line2=line2)
+                self._download_item(cover_url, cover_filename)
+            percent = 10 + 90 / len(track_ids) * i
+            self._update_progress(percent)
+            track_filename = '%s.%s' % (filename, audioformat)
+            line2 = _('current_file_s') % track_filename
+            self._update_progress(line2=line2)
+            try:
+                track_file = self._download_item(
+                    track['audio'],
+                    track_filename
+                )
+            except DownloadAborted:
+                return downloaded_tracks
+            if track_file:
+                downloaded_tracks[track_id] = {
+                    'file': track_file,
+                    'data': track
+                }
         self._update_progress(100)
         return downloaded_tracks
 
@@ -124,7 +127,10 @@ class JamendoDownloader(object):
             line2 = _('current_file_s') % track_filename
             self._update_progress(line2=line2)
             try:
-                track_file = self._download_item(track['audio'], track_filename)
+                track_file = self._download_item(
+                    track['audio'],
+                    track_filename
+                )
             except DownloadAborted:
                 break
             if track_file:
