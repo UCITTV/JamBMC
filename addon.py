@@ -640,7 +640,7 @@ def del_track_from_mixtape(mixtape_id, track_id):
 
 @plugin.route('/sort_methods/<entity>/')
 def show_sort_methods(entity):
-    sort_methods = get_cached(api.get_sort_methods, entity)
+    sort_methods = api.get_sort_methods(entity)
     items = format_sort_methods(sort_methods, entity)
     return add_static_items(items)
 
@@ -1327,8 +1327,9 @@ def add_track_to_history(track_id):
     if not track_id in [t['id'] for t in history['items']]:
         track = get_cached(api.get_track, track_id)
         history['items'].append(track)
-        while len(history['items']) > history_limit:
-            history['items'].pop(0)
+        if history_limit:
+            while len(history['items']) > history_limit:
+                history['items'].pop(0)
         history.sync()
 
 

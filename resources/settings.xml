@@ -2,7 +2,7 @@
 <settings>
     <category label="30350">
         <setting id="limit" type="labelenum" label="30300" values="25|50|75|100" default="100"/>
-        <setting id="history_limit" type="labelenum" label="30306" values="25|50|75|100" default="50"/>
+        <setting id="history_limit" type="labelenum" label="30306" values="25|50|75|100|0" default="50"/>
         <setting id="force_viewmode" type="bool" label="30301" default="true"/>
         <setting id="force_viewmode_tracks" type="bool" label="30321" default="false" enable="eq(-1,true)"/>
         <setting id="image_size" type="enum" label="30317" lvalues="30318|30319|30320" default="0"/>
