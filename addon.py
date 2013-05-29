@@ -1326,11 +1326,16 @@ def add_track_to_history(track_id):
         history['items'] = []
     if not track_id in [t['id'] for t in history['items']]:
         track = get_cached(api.get_track, track_id)
-        history['items'].append(track)
-        if history_limit:
-            while len(history['items']) > history_limit:
-                history['items'].pop(0)
-        history.sync()
+    else:
+        track = [t for t in history['items'] if t['id'] == track_id][0]
+        history['items'] = [
+            t for t in history['items'] if not t['id'] == track_id
+        ]
+    history['items'].append(track)
+    if history_limit:
+        while len(history['items']) > history_limit:
+            history['items'].pop(0)
+    history.sync()
 
 
 def log(text):
