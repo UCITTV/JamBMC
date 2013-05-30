@@ -573,6 +573,7 @@ def del_mixtape(mixtape_id):
     if confirmed and mixtape_id in mixtapes:
         del mixtapes[mixtape_id]
         mixtapes.sync()
+        _refresh_view()
 
 
 @plugin.route('/mixtapes/rename/<mixtape_id>')
@@ -585,6 +586,7 @@ def rename_mixtape(mixtape_id):
     )
     mixtapes[new_mixtape_id] = mixtape
     mixtapes.sync()
+    _refresh_view()
 
 
 @plugin.route('/mixtapes/add/<track_id>')
@@ -1267,6 +1269,10 @@ def _run(*args, **kwargs):
 
 def _view(*args, **kwargs):
     return 'XBMC.Container.Update(%s)' % plugin.url_for(*args, **kwargs)
+
+
+def _refresh_view():
+    xbmc.executebuiltin('Container.Refresh')
 
 
 ############################## Helpers ########################################
