@@ -98,6 +98,7 @@ STRINGS = {
     'add_mixtape': 30097,
     'add_del_track_to_mixtape': 30098,
     'delete_mixtape': 30099,
+    'rename_mixtape': 30124,
     # Sort methods
     'sort_method_default': 30100,
     'sort_method_buzzrate': 30101,
@@ -572,6 +573,18 @@ def del_mixtape(mixtape_id):
     if confirmed and mixtape_id in mixtapes:
         del mixtapes[mixtape_id]
         mixtapes.sync()
+
+
+@plugin.route('/mixtapes/rename/<mixtape_id>')
+def rename_mixtape(mixtape_id):
+    mixtapes = plugin.get_storage('mixtapes')
+    mixtape = mixtapes.pop(mixtape_id)
+    new_mixtape_id = plugin.keyboard(
+        heading=_('mixtape_name'),
+        default=mixtape_id
+    )
+    mixtapes[new_mixtape_id] = mixtape
+    mixtapes.sync()
 
 
 @plugin.route('/mixtapes/add/<track_id>')
@@ -1207,6 +1220,9 @@ def context_menu_empty():
 
 def context_menu_mixtape(mixtape_id):
     return [
+        (_('rename_mixtape'),
+         _run(endpoint='rename_mixtape',
+              mixtape_id=mixtape_id)),
         (_('delete_mixtape'),
          _run(endpoint='del_mixtape',
               mixtape_id=mixtape_id)),
