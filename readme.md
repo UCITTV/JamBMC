@@ -63,15 +63,15 @@ Mixtape management is one of the most useful features: You can create as much di
 You can search for Songs, Albums, Artists and Playlists.
 
 - Albums, Artists
-	- Search name
+    - Search name
 - Songs
-	- name
-	- tags
-	- genre
-	- instruments
-	- mood
-	- artist
-	- album
+    - name
+    - tags
+    - genre
+    - instruments
+    - mood
+    - artist
+    - album
 
 
 **Ordering**

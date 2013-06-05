@@ -1,3 +1,7 @@
+1.0.0 (05.06.2013)
+ - Initial release in official Repository
+
+
 [B]Discover[/B]
 - Browse Songs, Albums, Artists, Playlists and Radios.
 - Show Artists near your location
