@@ -19,46 +19,57 @@ JamBMC is a XBMC music add-on to browse, search, stream and download Songs and A
 [![Screenshot](http://i.imgur.com/NqkXR76l.png)](http://i.imgur.com/NqkXR76.png)
 
 Add-on Info Screen.
+- - -
 
 [![Screenshot](http://i.imgur.com/TWdsTtFl.png)](http://i.imgur.com/TWdsTtF.png)
 
 Root Menu in List-View.
+- - -
 
 [![Screenshot](http://i.imgur.com/8ydB1B2l.png)](http://i.imgur.com/8ydB1B2.png)
 
 Root Menu in Thumbnail-View.
+- - -
 
 [![Screenshot](http://i.imgur.com/WruUor3l.jpg)](http://i.imgur.com/WruUor3.jpg)
 
 Discover -> Songs. By default sorted by "popularity (month)". It is also possible to filter this view by multiple Tags or change the sort method.
+- - -
 
 [![Screenshot](http://i.imgur.com/YOnAqZol.png)](http://i.imgur.com/YOnAqZo.png)
 
 Context Menu on a Song. The deep context menu integration is one of the most useful features of this add-on.
+- - -
 
 [![Screenshot](http://i.imgur.com/52WIzy7l.png)](http://i.imgur.com/52WIzy7.png)
 
 Song Info with full meta-data integration.
+- - -
 
 [![Screenshot](http://i.imgur.com/8o0EWDzl.png)](http://i.imgur.com/8o0EWDz.png)
 
 Tag Filtering, there are ~40 Tags available and you can filter any view by as much Tags as you want.
+- - -
 
 [![Screenshot](http://i.imgur.com/78GBp8jl.png)](http://i.imgur.com/78GBp8j.png)
 
 Sort method choosing. There are multiple sort methods available - depending on the context.
+- - -
 
 [![Screenshot](http://i.imgur.com/I8KapWtl.png)](http://i.imgur.com/I8KapWt.png)
 
 Downloading. You can download single Songs or complete Albums - including Covers. Once downloaded Songs are always played local.
+- - -
 
 [![Screenshot](http://i.imgur.com/xrINYkEl.png)](http://i.imgur.com/xrINYkE.png)
 
 Discover -> Artists. Same here: You can sort or filter to find exactly what you are looking for.
+- - -
 
 [![Screenshot](http://i.imgur.com/4MsFEbel.png)](http://i.imgur.com/4MsFEbe.png)
 
 Mixtape management is one of the most useful features: You can create as much different Mixtapes as you need and let XBMC play them. Just open the context menu on any song and choose the mixtape you want to add this Song to.
+- - -
 
 
 ## Features ##
