@@ -23,6 +23,6 @@
     </category>
     <category label="30355">
         <setting id="use_https" type="bool" label="30302" default="false"/>
-        <setting id="user_name" type="action" label="30316" action="RunPlugin(plugin://plugin.audio.jamendo/user/set_user_account/)"/>
+        <setting id="user_name" type="action" label="30316" action="RunPlugin(plugin://plugin.audio.jambmc/user/set_user_account/)"/>
     </category>
 </settings>
