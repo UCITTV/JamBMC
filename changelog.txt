@@ -1,3 +1,6 @@
+1.0.1 (08.06.2013)
+ - fixed username setting in settings
+
 1.0.0 (05.06.2013)
  - Initial release in official Repository
 
