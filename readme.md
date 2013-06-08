@@ -15,6 +15,17 @@ JamBMC is a XBMC music add-on to browse, search, stream and download Songs and A
 
 [![Demo Video on YouTube](http://img.youtube.com/vi/H9H6LI2vwf4/0.jpg)](http://www.youtube.com/watch?v=H9H6LI2vwf4)
 
+## How to install ##
+This Add-on is already available in the official xbmc.org Add-on Repository. To use it you need to [download and install XBMC](http://xbmc.org/download/) and follow these steps inside XBMC:
+
+- Settings
+- Add-ons
+- Get add-ons
+- XBMC.org Add-ons
+- Music Add-ons
+- JamBMC
+- Install
+
 ## Screenshots ##
 [![Screenshot](http://i.imgur.com/NqkXR76l.png)](http://i.imgur.com/NqkXR76.png)
 
